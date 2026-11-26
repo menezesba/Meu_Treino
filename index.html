@@ -1,1 +1,1947 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Meu Treino — Registro de Academia</title>
+    <!-- Fonte Inter para excelente legibilidade em telas móveis -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            appbg: '#0f172a',
+            cardbg: '#1e293b',
+            carddark: '#0b1220',
+            emeraldBrand: '#10b981',
+            ytRed: '#ef4444',
+          }
+        }
+      }
+    };
+  </script>
+    <style>
+    /* Ajustes sutis para uma experiência fluida com uma mão no celular */
+    html, body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: #0f172a;
+      color: #f8fafc;
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior-y: none;
+    }
 
+    /* Esconde a barra de rolagem horizontal nos chips de filtro mantendo scroll suave */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Remove setinhas padrão dos campos numéricos */
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+  </style>
+  </head>
+  <body class="bg-[#0f172a] text-slate-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
+    <!-- ===================================================================== -->
+    <!-- CABEÇALHO FIXO E SELETOR DE DIAS DA SEMANA                            -->
+    <!-- ===================================================================== -->
+    <header class="sticky top-0 z-30 bg-[#0f172a]/95 backdrop-blur-md border-b border-slate-800/90">
+      <div class="max-w-lg mx-auto px-4 h-14 flex items-center justify-between gap-2">
+        <!-- Identidade do App -->
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/35 flex items-center justify-center text-[#10b981]">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.5 6.5h-2a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1Zm13 0h-2a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1ZM7.5 12h9M3.5 12H2m20 0h-1.5" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-base font-extrabold tracking-tight text-white leading-none">Meu Treino</h1>
+            <p class="text-[11px] text-slate-400 font-medium mt-0.5">84 exercícios • Animações 3D</p>
+          </div>
+        </div>
+        <!-- Botões de Ação Rápida: Cronômetro e Backup -->
+        <div class="flex items-center gap-2">
+          <button
+            id="btn-open-timer"
+            type="button"
+            class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#1e293b] hover:bg-slate-700 active:scale-95 border border-slate-700/80 text-slate-100 text-xs font-semibold transition"
+            aria-label="Abrir cronômetro de descanso"
+            >
+            <svg class="w-4 h-4 text-[#10b981]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9 2h6" />
+            </svg>
+            <span id="header-timer-label">Descanso</span>
+          </button>
+          <button
+            id="btn-open-backup"
+            type="button"
+            class="p-2.5 rounded-xl bg-[#1e293b] hover:bg-slate-700 active:scale-95 border border-slate-700/80 text-slate-200 transition"
+            aria-label="Backup em JSON"
+            title="Backup (Exportar / Importar)"
+            >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 10l5 5m0 0 5-5m-5 5V4" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <!-- Barra dos 7 dias da semana -->
+      <nav class="max-w-lg mx-auto px-3 pb-2.5 pt-1" aria-label="Dias da semana">
+        <div id="weekday-bar" class="grid grid-cols-7 gap-1.5">
+          <!-- Renderizado dinamicamente via JS -->
+        </div>
+      </nav>
+    </header>
+    <!-- ===================================================================== -->
+    <!-- CONTEÚDO PRINCIPAL                                                    -->
+    <!-- ===================================================================== -->
+    <main class="flex-1 w-full max-w-lg mx-auto px-4 pt-4 pb-28 space-y-4">
+      <!-- Card de Resumo do Dia -->
+      <section class="bg-[#1e293b] border border-slate-700/70 rounded-2xl p-4 space-y-3 shadow-lg shadow-slate-950/40">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <span id="current-day-full-name" class="text-xs font-extrabold uppercase tracking-wider text-[#10b981]">
+            Segunda-feira
+          </span>
+          <div class="flex items-center gap-1.5">
+            <!-- Botão Copiar Treino -->
+            <button
+              id="btn-open-copy"
+              type="button"
+              class="text-xs font-semibold text-slate-300 hover:text-white active:scale-95 px-2.5 py-1.5 rounded-lg bg-[#0f172a] border border-slate-700/80 transition flex items-center gap-1.5"
+              title="Copiar treino deste dia para outro dia"
+              >
+              <svg class="w-3.5 h-3.5 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2m-6 12h8a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2Z" />
+              </svg>
+              Copiar treino
+            </button>
+            <!-- Botão Reiniciar Check-ins -->
+            <button
+              id="btn-reset-checkins"
+              type="button"
+              class="text-xs font-semibold text-slate-300 hover:text-[#10b981] active:scale-95 px-2.5 py-1.5 rounded-lg bg-[#0f172a] border border-slate-700/80 transition flex items-center gap-1.5"
+              title="Desmarcar todos os concluídos deste dia"
+              >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 0 0 4.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 0 1-15.357-2m15.357 2H15" />
+              </svg>
+              Reiniciar check-ins
+            </button>
+          </div>
+        </div>
+        <!-- Título editável do treino do dia -->
+        <div>
+          <input
+          id="day-focus-input"
+          type="text"
+          maxlength="60"
+          placeholder="Título do treino (ex: Peito + Tríceps)"
+          class="w-full bg-[#0f172a] border border-slate-700/90 focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981] rounded-xl px-3.5 py-2.5 text-base font-bold text-white placeholder-slate-500 outline-none transition"
+          />
+        </div>
+        <!-- Barra de Progresso -->
+        <div class="space-y-1.5 pt-0.5">
+          <div class="flex items-center justify-between text-xs">
+            <span id="progress-text" class="font-medium text-slate-400">0 de 0 concluídos</span>
+            <span id="progress-percent" class="font-extrabold text-[#10b981]">0%</span>
+          </div>
+          <div class="w-full h-2.5 bg-[#0f172a] rounded-full overflow-hidden border border-slate-700/70">
+            <div
+              id="progress-bar"
+              class="h-full bg-gradient-to-r from-[#10b981] to-emerald-400 rounded-full transition-all duration-300"
+              style="width: 0%"
+              >
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- Acesso ao histórico de treinos -->
+      <div class="flex justify-end -mt-1">
+        <button id="btn-open-history" type="button" class="px-3 py-2 rounded-xl bg-[#1e293b] border border-slate-700 text-slate-200 text-xs font-bold flex items-center gap-2 active:scale-95 transition">
+          <span aria-hidden="true">📅</span> Histórico de treinos
+        </button>
+      </div>
+      <!-- Lista de Exercícios do Dia -->
+      <section id="workout-list" class="space-y-3" aria-live="polite">
+        <!-- Cards renderizados dinamicamente via JS -->
+      </section>
+      <!-- Finalizar treino -->
+      <section class="pb-24 pt-1">
+        <button id="btn-finish-workout" type="button" class="w-full py-3.5 px-4 rounded-2xl bg-[#10b981] hover:bg-emerald-400 text-slate-950 font-extrabold text-sm shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition flex items-center justify-center gap-2">
+          <span aria-hidden="true">✓</span> Finalizar treino
+        </button>
+        <p class="text-[11px] text-slate-500 text-center mt-2">Os exercícios marcados como concluídos serão salvos no histórico com a data e as cargas utilizadas.</p>
+      </section>
+    </main>
+    <!-- ===================================================================== -->
+    <!-- BOTÃO FLUTUANTE PRINCIPAL: + ADICIONAR EXERCÍCIO                      -->
+    <!-- ===================================================================== -->
+    <div class="fixed bottom-0 inset-x-0 z-20 pointer-events-none bg-gradient-to-t from-[#0f172a] via-[#0f172a]/95 to-transparent pt-6 pb-4 px-4">
+      <div class="max-w-lg mx-auto pointer-events-auto">
+        <button
+          id="btn-open-catalog"
+          type="button"
+          class="w-full py-3.5 px-5 rounded-2xl bg-[#10b981] hover:bg-emerald-400 active:scale-[0.98] text-slate-950 font-extrabold text-sm tracking-wide shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition"
+          >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Adicionar exercício
+        </button>
+      </div>
+    </div>
+    <!-- ===================================================================== -->
+    <!-- MODAL: CATÁLOGO DE EXERCÍCIOS (+ VER VÍDEO 3D + CRIAR PERSONALIZADO)  -->
+    <!-- ===================================================================== -->
+    <div id="modal-catalog" class="fixed inset-0 z-50 hidden">
+      <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" data-close-modal="modal-catalog">
+      </div>
+      <div class="relative z-10 w-full max-w-lg mx-auto h-full sm:h-[92vh] sm:mt-[4vh] bg-[#0f172a] sm:rounded-3xl border-t sm:border border-slate-700/80 flex flex-col overflow-hidden shadow-2xl">
+        <!-- Topo do Catálogo -->
+        <div class="px-4 pt-4 pb-3 border-b border-slate-800 space-y-3 bg-[#0f172a]">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <h2 class="text-base font-extrabold text-white">Catálogo de Exercícios</h2>
+              <p class="text-xs text-slate-400">
+                Adicionando em <span id="catalog-day-label" class="text-[#10b981] font-bold">hoje</span>
+              </p>
+            </div>
+            <button
+              type="button"
+              data-close-modal="modal-catalog"
+              class="p-2 rounded-xl bg-[#1e293b] hover:bg-slate-700 text-slate-200 border border-slate-700"
+              aria-label="Fechar catálogo"
+              >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <!-- Busca instantânea (ignora acentos) -->
+          <div class="relative">
+            <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z" />
+            </svg>
+            <input
+            id="catalog-search"
+            type="search"
+            placeholder="Buscar exercício (ex: supino, agachamento, rosca)..."
+            class="w-full bg-[#1e293b] border border-slate-700 focus:border-[#10b981] rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-400 outline-none transition"
+            />
+          </div>
+          <!-- Chips de Filtro por Grupo Muscular -->
+          <div id="catalog-chips" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+            <!-- Renderizado via JS -->
+          </div>
+        </div>
+        <!-- Criar Exercício Personalizado -->
+        <div class="px-4 py-2.5 bg-slate-900/90 border-b border-slate-800">
+          <button
+            id="btn-toggle-custom-form"
+            type="button"
+            class="w-full py-2.5 px-3 rounded-xl bg-[#1e293b] hover:bg-slate-700 border border-slate-700 text-[#10b981] text-xs font-bold flex items-center justify-center gap-1.5 transition"
+            >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            Criar exercício personalizado
+          </button>
+          <form id="form-custom-exercise" class="hidden mt-3 space-y-2.5 p-3.5 rounded-2xl bg-[#1e293b] border border-slate-700">
+            <div>
+              <label for="custom-ex-name" class="block text-[11px] font-semibold text-slate-300 mb-1">Nome do exercício *</label>
+              <input
+              id="custom-ex-name"
+              type="text"
+              required
+              placeholder="Ex: Elevação Lateral Unilateral na Polia"
+              class="w-full bg-[#0f172a] border border-slate-700 focus:border-[#10b981] rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500 outline-none"
+              />
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div>
+                <label for="custom-ex-group" class="block text-[11px] font-semibold text-slate-300 mb-1">Grupo muscular *</label>
+                <select
+                  id="custom-ex-group"
+                  class="w-full bg-[#0f172a] border border-slate-700 focus:border-[#10b981] rounded-xl px-3 py-2 text-sm text-white outline-none"
+                  >
+                  <option value="Peito">Peito</option>
+                  <option value="Costas">Costas</option>
+                  <option value="Pernas">Pernas</option>
+                  <option value="Glúteos">Glúteos</option>
+                  <option value="Ombros">Ombros</option>
+                  <option value="Bíceps">Bíceps</option>
+                  <option value="Tríceps">Tríceps</option>
+                  <option value="Abdômen & Panturrilha">Abdômen & Panturrilha</option>
+                </select>
+              </div>
+              <div>
+                <label for="custom-ex-url" class="block text-[11px] font-semibold text-slate-300 mb-1">Link do YouTube com demonstração (obrigatório)</label>
+                <input
+                id="custom-ex-url"
+                type="url"
+                required
+                placeholder="Cole o link do vídeo ou animação no YouTube"
+                class="w-full bg-[#0f172a] border border-slate-700 focus:border-[#10b981] rounded-xl px-3 py-2 text-sm text-white placeholder-slate-500 outline-none"
+                />
+              </div>
+            </div>
+            <div class="flex items-center justify-end gap-2 pt-1">
+              <button
+                id="btn-cancel-custom-form"
+                type="button"
+                class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white"
+                >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="px-4 py-2 rounded-xl bg-[#10b981] hover:bg-emerald-400 text-slate-950 text-xs font-extrabold transition"
+                >
+                Salvar e Adicionar
+              </button>
+            </div>
+          </form>
+        </div>
+        <!-- Lista Rolável do Catálogo -->
+        <div id="catalog-list" class="flex-1 overflow-y-auto p-4 space-y-2.5">
+          <!-- Itens renderizados via JS -->
+        </div>
+        <!-- Rodapé do Modal -->
+        <div class="p-3 border-t border-slate-800 bg-[#0f172a]">
+          <button
+            type="button"
+            data-close-modal="modal-catalog"
+            class="w-full py-3 rounded-xl bg-[#1e293b] hover:bg-slate-700 border border-slate-700 text-white text-sm font-bold transition"
+            >
+            Concluir seleção
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- ===================================================================== -->
+    <!-- MODAL: EDITAR LINK DO YOUTUBE DO EXERCÍCIO                            -->
+    <!-- ===================================================================== -->
+    <div id="modal-youtube-link" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" data-close-modal="modal-youtube-link">
+      </div>
+      <div class="relative z-10 w-full max-w-md bg-[#1e293b] border border-slate-700 rounded-2xl p-5 space-y-4 shadow-2xl">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <h3 class="text-base font-extrabold text-white">Editar link do YouTube</h3>
+            <p id="yt-modal-exercise-name" class="text-xs text-[#10b981] font-semibold mt-0.5">
+            </p>
+          </div>
+          <button
+            type="button"
+            data-close-modal="modal-youtube-link"
+            class="p-1.5 rounded-lg bg-[#0f172a] text-slate-400 hover:text-white"
+            >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Este exercício já possui uma animação 3D cadastrada. Caso prefira outro vídeo ou Shorts do YouTube, cole o novo link abaixo.
+        </p>
+        <form id="form-youtube-link" class="space-y-3">
+          <input type="hidden" id="yt-modal-uid" />
+          <input
+          id="yt-modal-url-input"
+          type="url"
+          placeholder="https://www.youtube.com/watch?v=..."
+          class="w-full bg-[#0f172a] border border-slate-700 focus:border-[#10b981] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 outline-none"
+          />
+          <div class="flex items-center justify-between gap-2 pt-1">
+            <button
+              id="btn-restore-yt-link"
+              type="button"
+              class="px-3 py-2 rounded-xl text-xs font-semibold text-amber-400 hover:bg-amber-500/10 transition"
+              >
+              Restaurar padrão 3D
+            </button>
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                data-close-modal="modal-youtube-link"
+                class="px-3.5 py-2 rounded-xl bg-[#0f172a] text-slate-300 text-xs font-semibold hover:bg-slate-800 transition"
+                >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                class="px-4 py-2 rounded-xl bg-[#10b981] hover:bg-emerald-400 text-slate-950 text-xs font-extrabold transition"
+                >
+                Salvar link
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- ===================================================================== -->
+    <!-- MODAL: COPIAR TREINO PARA OUTRO DIA DA SEMANA                         -->
+    <!-- ===================================================================== -->
+    <div id="modal-copy" class="fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" data-close-modal="modal-copy">
+      </div>
+      <div class="relative z-10 w-full max-w-md bg-[#1e293b] border-t sm:border border-slate-700 rounded-t-3xl sm:rounded-3xl p-6 space-y-4 shadow-2xl">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-base font-extrabold text-white">Copiar treino</h3>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Duplicar treino de <span id="copy-source-day-label" class="text-[#10b981] font-bold">
+            </span> para:
+          </p>
+        </div>
+        <button
+          type="button"
+          data-close-modal="modal-copy"
+          class="p-2 rounded-xl bg-[#0f172a] text-slate-400 hover:text-white border border-slate-700"
+          >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <!-- Escolha do dia de destino -->
+      <div id="copy-target-days" class="grid grid-cols-3 gap-2">
+        <!-- Renderizado via JS -->
+      </div>
+      <!-- Modo de cópia -->
+      <div class="bg-[#0f172a] border border-slate-700/80 rounded-xl p-3 space-y-2">
+        <label class="flex items-center gap-2.5 text-xs text-slate-200 cursor-pointer">
+          <input type="radio" name="copy-mode" value="replace" checked class="accent-[#10b981] w-4 h-4" />
+          <span>
+            <strong>Substituir</strong> o treino do dia escolhido</span>
+          </label>
+          <label class="flex items-center gap-2.5 text-xs text-slate-200 cursor-pointer">
+            <input type="radio" name="copy-mode" value="append" class="accent-[#10b981] w-4 h-4" />
+            <span>
+              <strong>Adicionar ao final</strong> dos exercícios existentes</span>
+            </label>
+          </div>
+          <button
+            id="btn-confirm-copy"
+            type="button"
+            class="w-full py-3.5 rounded-2xl bg-[#10b981] hover:bg-emerald-400 text-slate-950 font-extrabold text-sm active:scale-[0.98] transition"
+            >
+            Confirmar cópia
+          </button>
+        </div>
+      </div>
+      <!-- ===================================================================== -->
+      <!-- MODAL: CRONÔMETRO DE DESCANSO INTEGRADO                               -->
+      <!-- ===================================================================== -->
+      <div id="modal-timer" class="fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" data-close-modal="modal-timer">
+        </div>
+        <div class="relative z-10 w-full max-w-md bg-[#1e293b] border-t sm:border border-slate-700 rounded-t-3xl sm:rounded-3xl p-6 space-y-4 shadow-2xl">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-[#10b981] animate-pulse">
+              </span>
+              <h3 class="text-base font-extrabold text-white">Cronômetro de Descanso</h3>
+            </div>
+            <button
+              type="button"
+              data-close-modal="modal-timer"
+              class="p-2 rounded-xl bg-[#0f172a] text-slate-400 hover:text-white border border-slate-700"
+              >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <!-- Visor Digital -->
+          <div class="bg-[#0f172a] border border-slate-700/80 rounded-2xl py-6 text-center space-y-1">
+            <div id="timer-display" class="text-6xl font-extrabold tracking-tight tabular-nums text-white">
+              01:00
+            </div>
+            <p id="timer-status" class="text-xs font-medium text-slate-400">Pronto para iniciar</p>
+          </div>
+          <!-- Presets Rápidos -->
+          <div class="grid grid-cols-4 gap-2">
+            <button type="button" data-timer-preset="45" class="py-2.5 rounded-xl bg-[#0f172a] hover:bg-slate-800 border border-slate-700 text-xs font-bold text-slate-100 active:scale-95 transition">45s</button>
+            <button type="button" data-timer-preset="60" class="py-2.5 rounded-xl bg-[#0f172a] hover:bg-slate-800 border border-slate-700 text-xs font-bold text-slate-100 active:scale-95 transition">60s</button>
+            <button type="button" data-timer-preset="90" class="py-2.5 rounded-xl bg-[#0f172a] hover:bg-slate-800 border border-slate-700 text-xs font-bold text-slate-100 active:scale-95 transition">90s</button>
+            <button type="button" data-timer-preset="120" class="py-2.5 rounded-xl bg-[#0f172a] hover:bg-slate-800 border border-slate-700 text-xs font-bold text-slate-100 active:scale-95 transition">120s</button>
+          </div>
+          <!-- Tempo Personalizado em Segundos -->
+          <form id="form-custom-timer" class="flex items-center gap-2">
+            <input
+            id="input-custom-seconds"
+            type="number"
+            min="5"
+            max="3600"
+            inputmode="numeric"
+            placeholder="Tempo personalizado (segundos)"
+            class="flex-1 bg-[#0f172a] border border-slate-700 focus:border-[#10b981] rounded-xl px-3.5 py-2.5 text-xs font-semibold text-white placeholder-slate-500 outline-none"
+            />
+            <button
+              type="submit"
+              class="px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold active:scale-95 transition"
+              >
+              Definir
+            </button>
+          </form>
+          <!-- Controles Principais -->
+          <div class="grid grid-cols-3 gap-2.5 pt-1">
+            <button
+              id="btn-timer-reset"
+              type="button"
+              class="py-3.5 rounded-2xl bg-[#0f172a] hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold text-sm active:scale-95 transition"
+              >
+              Zerar
+            </button>
+            <button
+              id="btn-timer-toggle"
+              type="button"
+              class="col-span-2 py-3.5 rounded-2xl bg-[#10b981] hover:bg-emerald-400 text-slate-950 font-extrabold text-sm shadow-lg shadow-emerald-500/20 active:scale-95 transition"
+              >
+              Iniciar
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- ===================================================================== -->
+      <!-- MODAL: BACKUP (EXPORTAR / IMPORTAR JSON)                              -->
+      <!-- ===================================================================== -->
+      <div id="modal-backup" class="fixed inset-0 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" data-close-modal="modal-backup">
+        </div>
+        <div class="relative z-10 w-full max-w-md bg-[#1e293b] border-t sm:border border-slate-700 rounded-t-3xl sm:rounded-3xl p-6 space-y-4 shadow-2xl">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-base font-extrabold text-white">Backup dos Treinos</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Seus treinos são salvos automaticamente neste celular.</p>
+            </div>
+            <button
+              type="button"
+              data-close-modal="modal-backup"
+              class="p-2 rounded-xl bg-[#0f172a] text-slate-400 hover:text-white border border-slate-700"
+              >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="space-y-2.5 pt-1">
+            <button
+              id="btn-export-json"
+              type="button"
+              class="w-full py-3.5 px-4 rounded-2xl bg-[#10b981] hover:bg-emerald-400 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-2 active:scale-[0.98] transition"
+              >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.4" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M7 10l5 5m0 0 5-5m-5 5V4" />
+              </svg>
+              Exportar Backup (.json)
+            </button>
+            <label
+              for="input-import-json"
+              class="w-full py-3.5 px-4 rounded-2xl bg-[#0f172a] hover:bg-slate-800 border border-slate-700 text-slate-100 font-bold text-sm flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98] transition"
+              >
+              <svg class="w-4 h-4 text-[#10b981]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2M17 8l-5-5m0 0L7 8m5-5v12" />
+              </svg>
+              Importar Backup (.json)
+            </label>
+            <input id="input-import-json" type="file" accept=".json,application/json" class="hidden" />
+          </div>
+          <p class="text-[11px] text-slate-400 text-center pt-1">
+            Dica: exporte um arquivo de backup sempre que atualizar sua ficha para manter suas cargas seguras caso troque de aparelho.
+          </p>
+        </div>
+      </div>
+      <!-- ===================================================================== -->
+      <!-- MODAL: HISTÓRICO DE TREINOS                                          -->
+      <!-- ===================================================================== -->
+      <div id="modal-history" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" data-close-modal="modal-history">
+        </div>
+        <div class="relative z-10 w-full max-w-lg mx-auto h-full sm:h-[90vh] sm:mt-[5vh] bg-[#0f172a] sm:rounded-3xl border-t sm:border border-slate-700 flex flex-col overflow-hidden shadow-2xl">
+          <div class="px-4 py-4 border-b border-slate-800 flex items-center justify-between gap-3">
+            <div>
+              <h2 class="text-base font-extrabold text-white">Histórico de treinos</h2>
+              <p id="history-summary" class="text-xs text-slate-400 mt-1">Nenhum treino registrado ainda.</p>
+            </div>
+            <button type="button" data-close-modal="modal-history" class="p-2 rounded-xl bg-[#1e293b] border border-slate-700 text-slate-300" aria-label="Fechar histórico">✕</button>
+          </div>
+          <div id="history-list" class="flex-1 overflow-y-auto p-4 space-y-3">
+          </div>
+          <div class="p-3 border-t border-slate-800 space-y-2">
+            <button id="btn-delete-all-history" type="button" class="w-full py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-sm font-bold">🗑️ Deletar todos os históricos</button>
+            <button type="button" data-close-modal="modal-history" class="w-full py-3 rounded-xl bg-[#1e293b] border border-slate-700 text-white text-sm font-bold">Fechar</button>
+          </div>
+        </div>
+      </div>
+      <!-- ===================================================================== -->
+      <!-- NOTIFICAÇÃO FLUTUANTE (TOAST)                                         -->
+      <!-- ===================================================================== -->
+      <div
+        id="toast"
+        role="status"
+        aria-live="polite"
+        class="fixed top-16 left-1/2 -translate-x-1/2 z-[60] pointer-events-none opacity-0 -translate-y-2 transition-all duration-200"
+        >
+        <div class="px-4 py-2.5 rounded-xl bg-slate-900 border border-[#10b981]/50 text-slate-100 text-xs font-semibold shadow-2xl flex items-center gap-2 whitespace-nowrap">
+          <span class="w-2 h-2 rounded-full bg-[#10b981]">
+          </span>
+          <span id="toast-message">Salvo</span>
+        </div>
+      </div>
+      <!-- ===================================================================== -->
+      <!-- LÓGICA DA APLICAÇÃO (JAVASCRIPT PURO)                                 -->
+      <!-- ===================================================================== -->
+      <script>
+    (function () {
+      'use strict';
+
+      /* ---------------------------------------------------------------------
+       * 1. CONSTANTES E CATÁLOGO EXATO DOS 81 EXERCÍCIOS COM VÍDEOS 3D ÚNICOS
+       * -------------------------------------------------------------------*/
+      const STORAGE_KEY = 'meu_treino_app_v2';
+
+      const WEEKDAYS = [
+        { key: 'seg', short: 'Seg', full: 'Segunda-feira', jsDay: 1 },
+        { key: 'ter', short: 'Ter', full: 'Terça-feira', jsDay: 2 },
+        { key: 'qua', short: 'Qua', full: 'Quarta-feira', jsDay: 3 },
+        { key: 'qui', short: 'Qui', full: 'Quinta-feira', jsDay: 4 },
+        { key: 'sex', short: 'Sex', full: 'Sexta-feira', jsDay: 5 },
+        { key: 'sab', short: 'Sáb', full: 'Sábado', jsDay: 6 },
+        { key: 'dom', short: 'Dom', full: 'Domingo', jsDay: 0 },
+      ];
+
+      const MUSCLE_GROUPS = [
+        'Todos',
+        'Peito',
+        'Costas',
+        'Pernas',
+        'Glúteos',
+        'Ombros',
+        'Bíceps',
+        'Tríceps',
+        'Abdômen & Panturrilha'
+      ];
+
+      const GROUP_COLORS = {
+        'Peito':                  'bg-sky-500/15 text-sky-300 border-sky-500/30',
+        'Costas':                 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30',
+        'Pernas':                 'bg-orange-500/15 text-orange-300 border-orange-500/30',
+        'Glúteos':                'bg-rose-500/15 text-rose-300 border-rose-500/30',
+        'Ombros':                 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+        'Bíceps':                 'bg-purple-500/15 text-purple-300 border-purple-500/30',
+        'Tríceps':                'bg-pink-500/15 text-pink-300 border-pink-500/30',
+        'Abdômen & Panturrilha':  'bg-teal-500/15 text-teal-300 border-teal-500/30',
+      };
+
+      // Catálogo com 84 exercícios e links de demonstração 3D no YouTube
+      const BASE_CATALOG = [
+        // Grupo "Peito" (1 a 13)
+        { id: 'ex-01', name: 'Crucifixo na Máquina (Peck Deck / Fly)', group: 'Peito', videoUrl: 'https://www.youtube.com/watch?v=MENdoLpyj7c' },
+        { id: 'ex-02', name: 'Supino Reto com Barra', group: 'Peito', videoUrl: 'https://www.youtube.com/watch?v=UHa9U-O09_U' },
+        { id: 'ex-03', name: 'Supino Reto com Halteres', group: 'Peito', videoUrl: 'https://www.youtube.com/watch?v=hlV6f0kHmeo' },
+        { id: 'ex-04', name: 'Supino Reto na Máquina (Chest Press)', group: 'Peito', videoUrl: 'https://www.youtube.com/watch?v=RILogqbMVzQ' },
+        { id: 'ex-05', name: 'Supino Reto na Polia', group: 'Peito', videoUrl: 'https://www.youtube.com/watch?v=jPWofBk5aY8' },
+        { id: 'ex-06', name: 'Supino Inclinado com Barra', group: 'Peito', videoUrl: 'https://www.youtube.com/watch?v=XSiWdufUFQ8' },
+        { id: 'ex-07', name: 'Supino Inclinado 30° com Halteres', group: 'Peito', videoUrl: 'https://www.youtube.com/watch?v=ZaNyRjpoki8' },
+        { id: 'ex-08', name: 'Supino Inclinado na Máquina', group: 'Peito', videoUrl: 'https://www.youtube.com/watch?v=KK5ZSj22h7s' },
+        { id: 'ex-09', name: 'Supino Declinado com Barra', group: 'Peito', videoUrl: 'https://www.youtube.com/watch?v=v79c-eDjBv8' },
+        { id: 'ex-10', name: 'Crucifixo Reto com Halteres', group: 'Peito', videoUrl: 'https://www.youtube.com/watch?v=NzefUogE_Bs' },
+        { id: 'ex-11', name: 'Crucifixo Inclinado 30° com Halteres', group: 'Peito', videoUrl: 'https://www.youtube.com/watch?v=hV21YJFt6MI' },
+        { id: 'ex-12', name: 'Crossover Polia Alta', group: 'Peito', videoUrl: 'https://www.youtube.com/watch?v=55nyV_aosNk' },
+        { id: 'ex-13', name: 'Crossover Polia Baixa', group: 'Peito', videoUrl: 'https://www.youtube.com/watch?v=Od9914tc8sg' },
+
+        // Grupo "Costas" (14 a 23)
+        { id: 'ex-14', name: 'Puxada Frontal Aberta', group: 'Costas', videoUrl: 'https://www.youtube.com/watch?v=_2MfZAj98tk' },
+        { id: 'ex-15', name: 'Puxada Fechada com Triângulo', group: 'Costas', videoUrl: 'https://www.youtube.com/watch?v=ySLFHxmJ_Sc' },
+        { id: 'ex-16', name: 'Remada Baixa Fechada (Triângulo)', group: 'Costas', videoUrl: 'https://www.youtube.com/watch?v=7lc8Ow4vIwA' },
+        { id: 'ex-17', name: 'Remada Baixa Aberta Supinada', group: 'Costas', videoUrl: 'https://www.youtube.com/watch?v=eIfAc4BimJI' },
+        { id: 'ex-18', name: 'Remada Curvada Supinada', group: 'Costas', videoUrl: 'https://www.youtube.com/watch?v=w7j9nPqxTH4' },
+        { id: 'ex-19', name: 'Remada Curvada na Polia', group: 'Costas', videoUrl: 'https://www.youtube.com/watch?v=6uVPe2edsic' },
+        { id: 'ex-20', name: 'Remada Curvada Aberta na Polia', group: 'Costas', videoUrl: 'https://www.youtube.com/watch?v=0_rJ7VEIcUA' },
+        { id: 'ex-21', name: 'Pulldown com Barra', group: 'Costas', videoUrl: 'https://www.youtube.com/watch?v=Lgr9JqdRp3M' },
+        { id: 'ex-22', name: 'Pulldown com Corda', group: 'Costas', videoUrl: 'https://www.youtube.com/watch?v=GDhW19yQrJI' },
+        { id: 'ex-23', name: 'Barra Fixa Aberta (Graviton)', group: 'Costas', videoUrl: 'https://www.youtube.com/watch?v=lRCROSJkTKM' },
+        { id: 'ex-82', name: 'Remada Sentada na Polia (Animação 3D)', group: 'Costas', videoUrl: 'https://www.youtube.com/watch?v=htFUEiykH24' },
+        { id: 'ex-83', name: 'Barra Fixa Livre', group: 'Costas', videoUrl: 'https://www.youtube.com/watch?v=okNiCOOAHLE' },
+        { id: 'ex-84', name: 'Extensão Lombar no Banco Romano', group: 'Costas', videoUrl: 'https://www.youtube.com/watch?v=OJiqlPqk86w' },
+
+        // Grupo "Pernas" (24 a 38)
+        { id: 'ex-24', name: 'Agachamento Livre', group: 'Pernas', videoUrl: 'https://www.youtube.com/watch?v=3uZE_E11eg4' },
+        { id: 'ex-25', name: 'Agachamento com Barra', group: 'Pernas', videoUrl: 'https://www.youtube.com/watch?v=vwV4izNPOh4' },
+        { id: 'ex-26', name: 'Agachamento Frontal com Barra', group: 'Pernas', videoUrl: 'https://www.youtube.com/watch?v=gWWWOH59P8s' },
+        { id: 'ex-27', name: 'Agachamento Sumô com Halter', group: 'Pernas', videoUrl: 'https://www.youtube.com/watch?v=Jo1DFefVdrg' },
+        { id: 'ex-28', name: 'Agachamento Sumô com Barra', group: 'Pernas', videoUrl: 'https://www.youtube.com/watch?v=9BT28p1IBjI' },
+        { id: 'ex-29', name: 'Agachamento Hack Machine', group: 'Pernas', videoUrl: 'https://www.youtube.com/watch?v=PRzZVKxpuhE' },
+        { id: 'ex-30', name: 'Leg Press 45°', group: 'Pernas', videoUrl: 'https://www.youtube.com/watch?v=NY5fw4Zaofg' },
+        { id: 'ex-31', name: 'Leg Press 45° Unilateral', group: 'Pernas', videoUrl: 'https://www.youtube.com/watch?v=qH7FKCEhBeQ' },
+        { id: 'ex-32', name: 'Leg Press Horizontal', group: 'Pernas', videoUrl: 'https://www.youtube.com/watch?v=F8m05d2upOA' },
+        { id: 'ex-33', name: 'Leg Press Vertical', group: 'Pernas', videoUrl: 'https://www.youtube.com/watch?v=MXYO2fMvrWk' },
+        { id: 'ex-34', name: 'Cadeira Extensora', group: 'Pernas', videoUrl: 'https://www.youtube.com/watch?v=PzIfB9MiiX8' },
+        { id: 'ex-35', name: 'Cadeira Flexora', group: 'Pernas', videoUrl: 'https://www.youtube.com/watch?v=T46yKiz8laY' },
+        { id: 'ex-36', name: 'Mesa Flexora', group: 'Pernas', videoUrl: 'https://www.youtube.com/watch?v=IXg1PQ_5gmw' },
+        { id: 'ex-37', name: 'Cadeira Adutora', group: 'Pernas', videoUrl: 'https://www.youtube.com/watch?v=EvC1kuON4Bk' },
+        { id: 'ex-38', name: 'Levantamento Terra com Barra', group: 'Pernas', videoUrl: 'https://www.youtube.com/watch?v=DjsLHZ4jxTU' },
+
+        // Grupo "Glúteos" (39 a 44)
+        { id: 'ex-39', name: 'Elevação Pélvica (Barra ou Máquina)', group: 'Glúteos', videoUrl: 'https://www.youtube.com/watch?v=cOvGedlKlD4' },
+        { id: 'ex-40', name: 'Cadeira Abdutora Inclinada', group: 'Glúteos', videoUrl: 'https://www.youtube.com/watch?v=CblCvLRAPB8' },
+        { id: 'ex-41', name: 'Afundo com Halteres', group: 'Glúteos', videoUrl: 'https://www.youtube.com/watch?v=rltJymhFtHg' },
+        { id: 'ex-42', name: 'Afundo no Smith', group: 'Glúteos', videoUrl: 'https://www.youtube.com/watch?v=cGgGIklEJa4' },
+        { id: 'ex-43', name: 'Stiff Unilateral com Halter', group: 'Glúteos', videoUrl: 'https://www.youtube.com/watch?v=Vc4u9yelEiE' },
+        { id: 'ex-44', name: 'Abdução de Quadril com Elástico', group: 'Glúteos', videoUrl: 'https://www.youtube.com/watch?v=nNiT35zgZ4o' },
+
+        // Grupo "Ombros" (45 a 54)
+        { id: 'ex-45', name: 'Desenvolvimento Sentado com Halteres', group: 'Ombros', videoUrl: 'https://www.youtube.com/watch?v=5I7ogOjvdnc' },
+        { id: 'ex-46', name: 'Desenvolvimento em Pé com Halteres', group: 'Ombros', videoUrl: 'https://www.youtube.com/watch?v=Fx8KT-ERsFY' },
+        { id: 'ex-47', name: 'Elevação Lateral com Halteres', group: 'Ombros', videoUrl: 'https://www.youtube.com/watch?v=ot9nwSC1JnA' },
+        { id: 'ex-48', name: 'Elevação Lateral Sentado', group: 'Ombros', videoUrl: 'https://www.youtube.com/watch?v=YbqbspnFnfo' },
+        { id: 'ex-49', name: 'Elevação Lateral na Máquina', group: 'Ombros', videoUrl: 'https://www.youtube.com/watch?v=-vzaGAaUDjg' },
+        { id: 'ex-50', name: 'Elevação Frontal com Halteres', group: 'Ombros', videoUrl: 'https://www.youtube.com/watch?v=GqZRmCow0rw' },
+        { id: 'ex-51', name: 'Elevação Frontal na Polia Baixa', group: 'Ombros', videoUrl: 'https://www.youtube.com/watch?v=cCMl5hAgFvA' },
+        { id: 'ex-52', name: 'Crucifixo Invertido na Máquina', group: 'Ombros', videoUrl: 'https://www.youtube.com/watch?v=wUT3hmnzq3c' },
+        { id: 'ex-53', name: 'Crucifixo Invertido com Halteres', group: 'Ombros', videoUrl: 'https://www.youtube.com/watch?v=MHogGITTTBo' },
+        { id: 'ex-54', name: 'Encolhimento de Ombros com Halteres', group: 'Ombros', videoUrl: 'https://www.youtube.com/watch?v=x9Im5d1H-Xw' },
+
+        // Grupo "Bíceps" (55 a 63)
+        { id: 'ex-55', name: 'Rosca Direta com Barra', group: 'Bíceps', videoUrl: 'https://www.youtube.com/watch?v=dc330H9yN3Y' },
+        { id: 'ex-56', name: 'Rosca Direta na Polia Baixa', group: 'Bíceps', videoUrl: 'https://www.youtube.com/watch?v=x6JCKfdzPJE' },
+        { id: 'ex-57', name: 'Rosca em Pé com Halteres', group: 'Bíceps', videoUrl: 'https://www.youtube.com/watch?v=MfsDC0ymFm8' },
+        { id: 'ex-58', name: 'Rosca Alternada com Rotação', group: 'Bíceps', videoUrl: 'https://www.youtube.com/watch?v=ymOxKh5zgAQ' },
+        { id: 'ex-59', name: 'Rosca Martelo em Pé', group: 'Bíceps', videoUrl: 'https://www.youtube.com/watch?v=0rRpv6o140o' },
+        { id: 'ex-60', name: 'Rosca Scott na Máquina', group: 'Bíceps', videoUrl: 'https://www.youtube.com/watch?v=90_d-DsrOkE' },
+        { id: 'ex-61', name: 'Rosca Scott com Barra', group: 'Bíceps', videoUrl: 'https://www.youtube.com/watch?v=QkNciumGy14' },
+        { id: 'ex-62', name: 'Rosca Concentrada', group: 'Bíceps', videoUrl: 'https://www.youtube.com/watch?v=c0vYYI_mbXU' },
+        { id: 'ex-63', name: 'Rosca Inversa com Barra', group: 'Bíceps', videoUrl: 'https://www.youtube.com/watch?v=mcUpjlWlGZY' },
+
+        // Grupo "Tríceps" (64 a 73)
+        { id: 'ex-64', name: 'Tríceps Pulley Barra Reta', group: 'Tríceps', videoUrl: 'https://www.youtube.com/watch?v=M88Bt4MMpkI' },
+        { id: 'ex-65', name: 'Tríceps Pulley Barra V', group: 'Tríceps', videoUrl: 'https://www.youtube.com/watch?v=8ZJ2EfAr1Eo' },
+        { id: 'ex-66', name: 'Tríceps Pulley Corda', group: 'Tríceps', videoUrl: 'https://www.youtube.com/watch?v=-QGC1cL6ETE' },
+        { id: 'ex-67', name: 'Tríceps Pulley Supinado', group: 'Tríceps', videoUrl: 'https://www.youtube.com/watch?v=pf-8s8jC_10' },
+        { id: 'ex-68', name: 'Tríceps Testa com Barra W', group: 'Tríceps', videoUrl: 'https://www.youtube.com/watch?v=40Cx-IfJhA0' },
+        { id: 'ex-69', name: 'Tríceps Francês com Halter', group: 'Tríceps', videoUrl: 'https://www.youtube.com/watch?v=XMkUtMtcOh0' },
+        { id: 'ex-70', name: 'Tríceps Francês Corda Polia Baixa', group: 'Tríceps', videoUrl: 'https://www.youtube.com/watch?v=dMYGgTbtRIQ' },
+        { id: 'ex-71', name: 'Tríceps Coice com Halteres', group: 'Tríceps', videoUrl: 'https://www.youtube.com/watch?v=hg6jySXCaT0' },
+        { id: 'ex-72', name: 'Tríceps Mergulho no Banco', group: 'Tríceps', videoUrl: 'https://www.youtube.com/watch?v=Q07t33qOow0' },
+        { id: 'ex-73', name: 'Tríceps Paralela no Graviton', group: 'Tríceps', videoUrl: 'https://www.youtube.com/watch?v=z10Jg_ftWgk' },
+
+        // Grupo "Abdômen & Panturrilha" (74 a 81)
+        { id: 'ex-74', name: 'Prancha Isométrica', group: 'Abdômen & Panturrilha', videoUrl: 'https://www.youtube.com/watch?v=uxPlAbWFUDs' },
+        { id: 'ex-75', name: 'Abdominal na Máquina', group: 'Abdômen & Panturrilha', videoUrl: 'https://www.youtube.com/watch?v=uAe1Uj3Y05k' },
+        { id: 'ex-76', name: 'Abdominal Supra Declinado', group: 'Abdômen & Panturrilha', videoUrl: 'https://www.youtube.com/watch?v=DeiNXNsEeWs' },
+        { id: 'ex-77', name: 'Abdominal Infra (Solo/Banco)', group: 'Abdômen & Panturrilha', videoUrl: 'https://www.youtube.com/watch?v=MC5hF4JDLm4' },
+        { id: 'ex-78', name: 'Abdominal Canivete Alternado', group: 'Abdômen & Panturrilha', videoUrl: 'https://www.youtube.com/watch?v=dkg-rZGC6Xc' },
+        { id: 'ex-79', name: 'Panturrilha no Degrau / Step', group: 'Abdômen & Panturrilha', videoUrl: 'https://www.youtube.com/watch?v=5Jq-RlfsoCw' },
+        { id: 'ex-80', name: 'Panturrilha Sentado (Sóleos Máquina)', group: 'Abdômen & Panturrilha', videoUrl: 'https://www.youtube.com/watch?v=91bIKBrR4Wo' },
+        { id: 'ex-81', name: 'Panturrilha Sentado (Barra/Smith)', group: 'Abdômen & Panturrilha', videoUrl: 'https://www.youtube.com/watch?v=lwh7Enkt-Yk' },
+      ];
+
+      /* ---------------------------------------------------------------------
+       * 2. ESTADO DA APLICAÇÃO E PERSISTÊNCIA (LOCALSTORAGE)
+       * -------------------------------------------------------------------*/
+
+      function buildInitialWeekPlan() {
+        const preset = {
+          seg: { title: "Peito + Ombros + Tríceps", exercises: [{"id": "ex-04", "name": "Supino Reto na Máquina (Chest Press)", "group": "Peito", "videoUrl": "https://www.youtube.com/watch?v=RILogqbMVzQ", "sets": "3", "reps": "8–10"}, {"id": "ex-07", "name": "Supino Inclinado 30° com Halteres", "group": "Peito", "videoUrl": "https://www.youtube.com/watch?v=ZaNyRjpoki8", "sets": "3", "reps": "8–10"}, {"id": "ex-01", "name": "Crucifixo na Máquina (Peck Deck / Fly)", "group": "Peito", "videoUrl": "https://www.youtube.com/watch?v=MENdoLpyj7c", "sets": "3", "reps": "8–10"}, {"id": "ex-12", "name": "Crossover Polia Alta", "group": "Peito", "videoUrl": "https://www.youtube.com/watch?v=55nyV_aosNk", "sets": "3", "reps": "8–10"}, {"id": "ex-45", "name": "Desenvolvimento Sentado com Halteres", "group": "Ombros", "videoUrl": "https://www.youtube.com/watch?v=5I7ogOjvdnc", "sets": "3", "reps": "8–10"}, {"id": "ex-47", "name": "Elevação Lateral com Halteres", "group": "Ombros", "videoUrl": "https://www.youtube.com/watch?v=ot9nwSC1JnA", "sets": "3", "reps": "8–10"}, {"id": "ex-66", "name": "Tríceps Pulley Corda", "group": "Tríceps", "videoUrl": "https://www.youtube.com/watch?v=-QGC1cL6ETE", "sets": "3", "reps": "8–10"}] },
+          ter: { title: "Costas + Bíceps", exercises: [{"id": "ex-14", "name": "Puxada Frontal Aberta", "group": "Costas", "videoUrl": "https://www.youtube.com/watch?v=_2MfZAj98tk", "sets": "3", "reps": "8–10"}, {"id": "ex-16", "name": "Remada Baixa Fechada (Triângulo)", "group": "Costas", "videoUrl": "https://www.youtube.com/watch?v=7lc8Ow4vIwA", "sets": "3", "reps": "8–10"}, {"id": "ex-82", "name": "Remada Sentada na Polia (Animação 3D)", "group": "Costas", "videoUrl": "https://www.youtube.com/watch?v=htFUEiykH24", "sets": "3", "reps": "8–10"}, {"id": "ex-22", "name": "Pulldown com Corda", "group": "Costas", "videoUrl": "https://www.youtube.com/watch?v=GDhW19yQrJI", "sets": "3", "reps": "8–10"}, {"id": "ex-55", "name": "Rosca Direta com Barra", "group": "Bíceps", "videoUrl": "https://www.youtube.com/watch?v=dc330H9yN3Y", "sets": "3", "reps": "8–10"}, {"id": "ex-59", "name": "Rosca Martelo em Pé", "group": "Bíceps", "videoUrl": "https://www.youtube.com/watch?v=0rRpv6o140o", "sets": "3", "reps": "8–10"}, {"id": "ex-83", "name": "Barra Fixa Livre", "group": "Costas", "videoUrl": "https://www.youtube.com/watch?v=okNiCOOAHLE", "sets": "3", "reps": "8–10"}] },
+          qua: { title: "Pernas", exercises: [{"id": "ex-24", "name": "Agachamento Livre", "group": "Pernas", "videoUrl": "https://www.youtube.com/watch?v=3uZE_E11eg4", "sets": "3", "reps": "8–10"}, {"id": "ex-30", "name": "Leg Press 45°", "group": "Pernas", "videoUrl": "https://www.youtube.com/watch?v=NY5fw4Zaofg", "sets": "3", "reps": "8–10"}, {"id": "ex-34", "name": "Cadeira Extensora", "group": "Pernas", "videoUrl": "https://www.youtube.com/watch?v=PzIfB9MiiX8", "sets": "3", "reps": "8–10"}, {"id": "ex-36", "name": "Mesa Flexora", "group": "Pernas", "videoUrl": "https://www.youtube.com/watch?v=IXg1PQ_5gmw", "sets": "3", "reps": "8–10"}, {"id": "ex-35", "name": "Cadeira Flexora", "group": "Pernas", "videoUrl": "https://www.youtube.com/watch?v=T46yKiz8laY", "sets": "3", "reps": "8–10"}, {"id": "ex-79", "name": "Panturrilha no Degrau / Step", "group": "Abdômen & Panturrilha", "videoUrl": "https://www.youtube.com/watch?v=5Jq-RlfsoCw", "sets": "3", "reps": "8–10"}, {"id": "ex-80", "name": "Panturrilha Sentado (Sóleos Máquina)", "group": "Abdômen & Panturrilha", "videoUrl": "https://www.youtube.com/watch?v=91bIKBrR4Wo", "sets": "3", "reps": "8–10"}] },
+          qui: { title: "Ombros + Braços + Abdômen", exercises: [{"id": "ex-47", "name": "Elevação Lateral com Halteres", "group": "Ombros", "videoUrl": "https://www.youtube.com/watch?v=ot9nwSC1JnA", "sets": "3", "reps": "8–10"}, {"id": "ex-52", "name": "Crucifixo Invertido na Máquina", "group": "Ombros", "videoUrl": "https://www.youtube.com/watch?v=wUT3hmnzq3c", "sets": "3", "reps": "8–10"}, {"id": "ex-58", "name": "Rosca Alternada com Rotação", "group": "Bíceps", "videoUrl": "https://www.youtube.com/watch?v=ymOxKh5zgAQ", "sets": "3", "reps": "8–10"}, {"id": "ex-62", "name": "Rosca Concentrada", "group": "Bíceps", "videoUrl": "https://www.youtube.com/watch?v=c0vYYI_mbXU", "sets": "3", "reps": "8–10"}, {"id": "ex-69", "name": "Tríceps Francês com Halter", "group": "Tríceps", "videoUrl": "https://www.youtube.com/watch?v=XMkUtMtcOh0", "sets": "3", "reps": "8–10"}, {"id": "ex-66", "name": "Tríceps Pulley Corda", "group": "Tríceps", "videoUrl": "https://www.youtube.com/watch?v=-QGC1cL6ETE", "sets": "3", "reps": "8–10"}, {"id": "ex-75", "name": "Abdominal na Máquina", "group": "Abdômen & Panturrilha", "videoUrl": "https://www.youtube.com/watch?v=uAe1Uj3Y05k", "sets": "3", "reps": "8–10"}] },
+          sex: { title: "Superiores completo", exercises: [{"id": "ex-04", "name": "Supino Reto na Máquina (Chest Press)", "group": "Peito", "videoUrl": "https://www.youtube.com/watch?v=RILogqbMVzQ", "sets": "3", "reps": "8–10"}, {"id": "ex-14", "name": "Puxada Frontal Aberta", "group": "Costas", "videoUrl": "https://www.youtube.com/watch?v=_2MfZAj98tk", "sets": "3", "reps": "8–10"}, {"id": "ex-16", "name": "Remada Baixa Fechada (Triângulo)", "group": "Costas", "videoUrl": "https://www.youtube.com/watch?v=7lc8Ow4vIwA", "sets": "3", "reps": "8–10"}, {"id": "ex-47", "name": "Elevação Lateral com Halteres", "group": "Ombros", "videoUrl": "https://www.youtube.com/watch?v=ot9nwSC1JnA", "sets": "3", "reps": "8–10"}, {"id": "ex-55", "name": "Rosca Direta com Barra", "group": "Bíceps", "videoUrl": "https://www.youtube.com/watch?v=dc330H9yN3Y", "sets": "3", "reps": "8–10"}, {"id": "ex-66", "name": "Tríceps Pulley Corda", "group": "Tríceps", "videoUrl": "https://www.youtube.com/watch?v=-QGC1cL6ETE", "sets": "3", "reps": "8–10"}, {"id": "ex-52", "name": "Crucifixo Invertido na Máquina", "group": "Ombros", "videoUrl": "https://www.youtube.com/watch?v=wUT3hmnzq3c", "sets": "3", "reps": "8–10"}] }
+        };
+        const days = {};
+        WEEKDAYS.forEach(day => {
+          const data = preset[day.key];
+          days[day.key] = data ? {
+            title: data.title,
+            exercises: data.exercises.map(ex => ({
+              uid: generateUid(),
+              exerciseId: ex.id,
+              name: ex.name,
+              group: ex.group,
+              sets: ex.sets,
+              reps: ex.reps,
+              weight: '',
+              notes: '',
+              videoUrl: ex.videoUrl,
+              customUrl: '',
+              completed: false,
+            }))
+          } : { title: '', exercises: [] };
+        });
+        return days;
+      }
+
+      function createDefaultState() {
+        return {
+          version: 4,
+          planPresetVersion: 1,
+          days: buildInitialWeekPlan(),
+          customExercises: [],
+          history: [],
+        };
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return createDefaultState();
+          const parsed = JSON.parse(raw);
+          const fallback = createDefaultState();
+
+          if (!parsed || typeof parsed !== 'object' || !parsed.days) {
+            return fallback;
+          }
+
+          WEEKDAYS.forEach(d => {
+            if (!parsed.days[d.key] || !Array.isArray(parsed.days[d.key].exercises)) {
+              parsed.days[d.key] = { title: '', exercises: [] };
+            }
+          });
+
+          if (!Array.isArray(parsed.customExercises)) {
+            parsed.customExercises = [];
+          }
+          if (!Array.isArray(parsed.history)) parsed.history = [];
+
+          // Instala a ficha inicial automaticamente apenas quando todos os dias
+          // ainda estão vazios. Dados e fichas já existentes nunca são sobrescritos.
+          const hasAnyExercise = WEEKDAYS.some(d => parsed.days[d.key].exercises.length > 0);
+          if (!hasAnyExercise && parsed.planPresetVersion !== 1) {
+            parsed.days = buildInitialWeekPlan();
+            parsed.planPresetVersion = 1;
+          }
+          parsed.version = 4;
+          return parsed;
+        } catch (err) {
+          console.error('Erro ao carregar dados do localStorage:', err);
+          return createDefaultState();
+        }
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        } catch (err) {
+          console.error('Erro ao salvar dados no localStorage:', err);
+          showToast('Não foi possível salvar localmente.');
+        }
+      }
+
+      function formatLocalDate(dateValue) {
+        const d = new Date(dateValue);
+        return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      }
+
+      function renderHistory() {
+        const history = Array.isArray(appState.history) ? appState.history : [];
+        const list = document.getElementById('history-list');
+        const summary = document.getElementById('history-summary');
+        summary.textContent = `${history.length} treino(s) registrado(s)`;
+        const deleteAllButton = document.getElementById('btn-delete-all-history');
+        if (deleteAllButton) deleteAllButton.disabled = history.length === 0;
+        if (!history.length) {
+          list.innerHTML = '<div class="text-center py-12 text-sm text-slate-400">Você ainda não finalizou nenhum treino. Quando concluir o primeiro, ele aparecerá aqui com a data, os exercícios e as cargas.</div>';
+          return;
+        }
+        // Exibe do treino mais antigo para o mais recente, em ordem cronológica.
+        // O índice original é preservado para que a lixeira exclua o registro correto.
+        const orderedHistory = history
+          .map((item, historyIndex) => ({ item, historyIndex }))
+          .sort((a, b) => {
+            const dateA = a.item.date || '9999-12-31';
+            const dateB = b.item.date || '9999-12-31';
+            const dateCompare = dateA.localeCompare(dateB);
+            if (dateCompare !== 0) return dateCompare;
+            return (a.item.time || '').localeCompare(b.item.time || '');
+          });
+
+        list.innerHTML = orderedHistory.map(({ item, historyIndex }) => {
+          const dateLabel = item.date ? formatLocalDate(item.date + 'T12:00:00') : 'Data não informada';
+          const exercises = Array.isArray(item.exercises) ? item.exercises : [];
+          const exerciseHtml = exercises.map(ex => `
+            <div class="flex items-start justify-between gap-3 py-2 border-t border-slate-700/60">
+              <div class="min-w-0"><div class="text-xs font-bold text-slate-100">${escapeHtml(ex.name)}</div><div class="text-[11px] text-slate-400 mt-0.5">${escapeHtml(ex.sets || 'Séries não informadas')} séries • ${escapeHtml(ex.reps || 'Reps não informadas')} reps</div>${ex.notes ? `<div class="text-[11px] text-slate-500 mt-0.5">${escapeHtml(ex.notes)}</div>` : ''}</div>
+              <div class="text-xs font-extrabold text-[#10b981] whitespace-nowrap">${escapeHtml(ex.weight || 'Sem carga')} ${ex.weight ? 'kg' : ''}</div>
+            </div>`).join('');
+          return `<article class="rounded-2xl bg-[#1e293b] border border-slate-700 p-3.5">
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <div><div class="text-sm font-extrabold text-white">${escapeHtml(item.dayName || 'Treino')}</div><div class="text-[11px] text-slate-400 mt-0.5">${dateLabel}${item.time ? ' • ' + escapeHtml(item.time) : ''}</div>${item.title ? `<div class="text-xs text-emerald-300 mt-1">${escapeHtml(item.title)}</div>` : ''}</div>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="text-[10px] rounded-lg bg-emerald-500/15 text-emerald-300 px-2 py-1">${exercises.length} exercício(s)</span>
+                <button type="button" data-delete-history="${historyIndex}" class="p-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300" aria-label="Deletar este histórico" title="Deletar este histórico">🗑️</button>
+              </div>
+            </div>
+            ${exerciseHtml || '<div class="text-xs text-slate-400">Nenhum exercício detalhado.</div>'}
+          </article>`;
+        }).join('');
+      }
+
+      function deleteHistoryEntry(index) {
+        if (!Array.isArray(appState.history) || index < 0 || index >= appState.history.length) return;
+        const entry = appState.history[index];
+        const label = entry?.dayName || 'este treino';
+        if (!confirm(`Deseja realmente deletar o histórico de ${label}? Essa ação não pode ser desfeita.`)) return;
+        appState.history.splice(index, 1);
+        saveState();
+        renderHistory();
+        showToast('Histórico deletado.');
+      }
+
+      function deleteAllHistory() {
+        if (!Array.isArray(appState.history) || appState.history.length === 0) return;
+        if (!confirm(`Deseja realmente deletar todos os ${appState.history.length} históricos? Essa ação não pode ser desfeita.`)) return;
+        appState.history = [];
+        saveState();
+        renderHistory();
+        showToast('Todos os históricos foram deletados.');
+      }
+
+      function finishCurrentWorkout() {
+        const dayData = appState.days[selectedDay];
+        const completed = dayData.exercises.filter(ex => ex.completed);
+        if (!completed.length) {
+          showToast('Marque pelo menos um exercício como concluído.');
+          return;
+        }
+        const dayIndex = WEEKDAYS.findIndex(d => d.key === selectedDay);
+        const dayMeta = WEEKDAYS[dayIndex];
+        const now = new Date();
+        const date = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+        const snapshot = completed.map(ex => ({
+          name: ex.name, group: ex.group || '', sets: ex.sets || '', reps: ex.reps || '',
+          weight: ex.weight || '', notes: ex.notes || '', videoUrl: resolveYouTubeUrl(ex)
+        }));
+        if (!Array.isArray(appState.history)) appState.history = [];
+        appState.history.push({
+          id: generateUid(), date, time: now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}),
+          dayKey: selectedDay, dayName: dayMeta.full, title: dayData.title || '', exercises: snapshot
+        });
+        dayData.exercises.forEach(ex => { ex.completed = false; });
+        selectedDay = WEEKDAYS[(dayIndex + 1) % WEEKDAYS.length].key;
+        saveState();
+        renderApp();
+        showToast('Treino salvo no histórico. Próximo dia aberto!');
+      }
+
+      function getTodayKey() {
+        const todayJs = new Date().getDay();
+        const found = WEEKDAYS.find(d => d.jsDay === todayJs);
+        return found ? found.key : 'seg';
+      }
+
+      let appState = loadState();
+      let selectedDay = getTodayKey();
+      let catalogFilterGroup = 'Todos';
+      let catalogSearchTerm = '';
+      let selectedCopyTargetDay = null;
+
+      /* ---------------------------------------------------------------------
+       * 3. UTILITÁRIOS
+       * -------------------------------------------------------------------*/
+      function generateUid() {
+        return 'ex_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
+      }
+
+      // Remove acentos para busca instantânea amigável em português
+      function normalizeText(str) {
+        return String(str || '')
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .trim();
+      }
+
+      function escapeHtml(str) {
+        return String(str || '')
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function getCatalogVideoUrl(exerciseId) {
+        const found = BASE_CATALOG.find(item => item.id === exerciseId);
+        return found ? found.videoUrl : '';
+      }
+
+      // Prioridade do link: 1) link personalizado do usuário -> 2) link 3D padrão do catálogo -> 3) busca YouTube com "animação 3D"
+      function resolveYouTubeUrl(exercise) {
+        if (exercise.customUrl && exercise.customUrl.trim()) {
+          return exercise.customUrl.trim();
+        }
+        if (exercise.videoUrl && exercise.videoUrl.trim()) {
+          return exercise.videoUrl.trim();
+        }
+        const catalogUrl = getCatalogVideoUrl(exercise.exerciseId || exercise.id);
+        if (catalogUrl) {
+          return catalogUrl;
+        }
+        return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(exercise.name + ' animacao 3D');
+      }
+
+      function getAllCatalogExercises() {
+        return [...appState.customExercises, ...BASE_CATALOG];
+      }
+
+      let toastTimeout = null;
+      function showToast(message) {
+        const toast = document.getElementById('toast');
+        const msgEl = document.getElementById('toast-message');
+        msgEl.textContent = message;
+        toast.classList.remove('opacity-0', '-translate-y-2');
+        toast.classList.add('opacity-100', 'translate-y-0');
+
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          toast.classList.remove('opacity-100', 'translate-y-0');
+          toast.classList.add('opacity-0', '-translate-y-2');
+        }, 2400);
+      }
+
+      /* ---------------------------------------------------------------------
+       * 4. RENDERIZAÇÃO DA INTERFACE PRINCIPAL
+       * -------------------------------------------------------------------*/
+      function renderWeekdayBar() {
+        const container = document.getElementById('weekday-bar');
+        const todayKey = getTodayKey();
+
+        container.innerHTML = WEEKDAYS.map(day => {
+          const isSelected = day.key === selectedDay;
+          const isToday = day.key === todayKey;
+          const hasWorkout = appState.days[day.key].exercises.length > 0;
+
+          const baseClasses = isSelected
+            ? 'bg-[#10b981] text-slate-950 font-extrabold shadow-md shadow-emerald-500/25 border-emerald-400'
+            : 'bg-[#1e293b] text-slate-400 hover:text-slate-100 border-slate-700/80 font-semibold';
+
+          return `
+            <button
+              type="button"
+              data-day="${day.key}"
+              class="relative py-2 rounded-xl border text-xs flex flex-col items-center justify-center gap-0.5 active:scale-95 transition ${baseClasses}"
+              aria-pressed="${isSelected}"
+            >
+              <span>${day.short}</span>
+              <span class="w-1.5 h-1.5 rounded-full ${
+                hasWorkout
+                  ? (isSelected ? 'bg-slate-950' : 'bg-[#10b981]')
+                  : (isToday && !isSelected ? 'bg-slate-400' : 'bg-transparent')
+              }"></span>
+            </button>
+          `;
+        }).join('');
+      }
+
+      function renderDayHeader() {
+        const dayMeta = WEEKDAYS.find(d => d.key === selectedDay);
+        const dayData = appState.days[selectedDay];
+
+        document.getElementById('current-day-full-name').textContent = dayMeta.full;
+        document.getElementById('catalog-day-label').textContent = dayMeta.full;
+
+        const focusInput = document.getElementById('day-focus-input');
+        if (focusInput.value !== dayData.title) {
+          focusInput.value = dayData.title;
+        }
+
+        const total = dayData.exercises.length;
+        const done = dayData.exercises.filter(ex => ex.completed).length;
+        const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+
+        document.getElementById('progress-text').textContent = `${done} de ${total} concluídos`;
+        document.getElementById('progress-percent').textContent = `${percent}%`;
+        document.getElementById('progress-bar').style.width = `${percent}%`;
+
+        // Habilita/desabilita botões conforme estado do dia
+        const resetBtn = document.getElementById('btn-reset-checkins');
+        resetBtn.disabled = done === 0;
+        resetBtn.classList.toggle('opacity-40', done === 0);
+        resetBtn.classList.toggle('cursor-not-allowed', done === 0);
+
+        const copyBtn = document.getElementById('btn-open-copy');
+        copyBtn.disabled = total === 0;
+        copyBtn.classList.toggle('opacity-40', total === 0);
+        copyBtn.classList.toggle('cursor-not-allowed', total === 0);
+      }
+
+      function renderWorkoutList() {
+        const listEl = document.getElementById('workout-list');
+        const exercises = appState.days[selectedDay].exercises;
+
+        if (exercises.length === 0) {
+          listEl.innerHTML = '';
+          return;
+        }
+
+        // Exercícios concluídos continuam salvos no dia, mas saem da lista
+        // ativa para não atrapalhar durante o treino.
+        const visibleExercises = exercises
+          .map((ex, index) => ({ ex, index }))
+          .filter(item => !item.ex.completed);
+
+        if (visibleExercises.length === 0) {
+          listEl.innerHTML = `
+            <div class="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3 text-center">
+              <div class="text-sm font-bold text-emerald-300">Todos os exercícios deste dia foram concluídos.</div>
+              <div class="text-xs text-slate-400 mt-1">Eles continuam salvos na ficha. Use “Reiniciar check-ins” se quiser exibi-los novamente.</div>
+            </div>`;
+          return;
+        }
+
+        listEl.innerHTML = visibleExercises.map(({ ex, index }) => {
+          const isFirst = index === 0;
+          const isLast = index === exercises.length - 1;
+          const badgeClass = GROUP_COLORS[ex.group] || 'bg-slate-700/60 text-slate-300 border-slate-600';
+          const ytUrl = resolveYouTubeUrl(ex);
+          const hasCustomUrl = Boolean(ex.customUrl && ex.customUrl.trim());
+
+          const cardStyle = ex.completed
+            ? 'border-[#10b981]/50 bg-emerald-950/25'
+            : 'border-slate-700/80 bg-[#1e293b]';
+
+          return `
+            <article
+              class="rounded-2xl border p-4 space-y-3.5 transition-all duration-200 shadow-lg shadow-slate-950/30 ${cardStyle}"
+              data-uid="${ex.uid}"
+            >
+              <!-- Topo do Card: Check-in + Nome + Grupo + Reordenar/Remover -->
+              <div class="flex items-start gap-3">
+                <button
+                  type="button"
+                  data-action="toggle-complete"
+                  data-uid="${ex.uid}"
+                  aria-label="Marcar ${escapeHtml(ex.name)} como concluído"
+                  class="mt-0.5 w-8 h-8 shrink-0 rounded-xl border-2 flex items-center justify-center active:scale-90 transition ${
+                    ex.completed
+                      ? 'bg-[#10b981] border-emerald-400 text-slate-950'
+                      : 'bg-[#0f172a] border-slate-600 hover:border-[#10b981]/70 text-transparent'
+                  }"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                  </svg>
+                </button>
+
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-[15px] font-bold leading-snug break-words transition ${
+                    ex.completed ? 'line-through text-slate-400' : 'text-white'
+                  }">
+                    ${escapeHtml(ex.name)}
+                  </h3>
+                  <div class="flex items-center flex-wrap gap-1.5 mt-1">
+                    <span class="inline-block text-[11px] font-semibold px-2 py-0.5 rounded-md border ${badgeClass}">
+                      ${escapeHtml(ex.group)}
+                    </span>
+                    ${hasCustomUrl ? '<span class="text-[10px] font-semibold text-amber-300 bg-amber-500/10 border border-amber-500/25 px-1.5 py-0.5 rounded-md">Link personalizado</span>' : ''}
+                  </div>
+                </div>
+
+                <!-- Controles: Subir, Descer, Remover -->
+                <div class="flex items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    data-action="move-up"
+                    data-uid="${ex.uid}"
+                    ${isFirst ? 'disabled' : ''}
+                    aria-label="Mover para cima"
+                    class="p-1.5 rounded-lg bg-[#0f172a] border border-slate-700 text-slate-400 hover:text-white disabled:opacity-25 disabled:pointer-events-none active:scale-90 transition"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    data-action="move-down"
+                    data-uid="${ex.uid}"
+                    ${isLast ? 'disabled' : ''}
+                    aria-label="Mover para baixo"
+                    class="p-1.5 rounded-lg bg-[#0f172a] border border-slate-700 text-slate-400 hover:text-white disabled:opacity-25 disabled:pointer-events-none active:scale-90 transition"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    data-action="remove"
+                    data-uid="${ex.uid}"
+                    aria-label="Remover exercício"
+                    class="p-1.5 rounded-lg bg-[#0f172a] border border-slate-700 text-slate-400 hover:text-[#ef4444] hover:border-red-500/40 active:scale-90 transition"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Campos Grandes para Toque: Séries, Repetições, Carga (kg) -->
+              <div class="grid grid-cols-3 gap-2">
+                <label class="bg-[#0f172a] border border-slate-700/90 focus-within:border-[#10b981] rounded-xl px-3 py-2 flex flex-col">
+                  <span class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Séries</span>
+                  <input
+                    type="text"
+                    inputmode="numeric"
+                    data-field="sets"
+                    data-uid="${ex.uid}"
+                    value="${escapeHtml(ex.sets)}"
+                    placeholder="4"
+                    class="w-full bg-transparent text-lg font-extrabold text-white placeholder-slate-600 outline-none mt-0.5"
+                  />
+                </label>
+
+                <label class="bg-[#0f172a] border border-slate-700/90 focus-within:border-[#10b981] rounded-xl px-3 py-2 flex flex-col">
+                  <span class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Reps</span>
+                  <input
+                    type="text"
+                    inputmode="text"
+                    data-field="reps"
+                    data-uid="${ex.uid}"
+                    value="${escapeHtml(ex.reps)}"
+                    placeholder="12"
+                    class="w-full bg-transparent text-lg font-extrabold text-white placeholder-slate-600 outline-none mt-0.5"
+                  />
+                </label>
+
+                <label class="bg-[#0f172a] border border-slate-700/90 focus-within:border-[#10b981] rounded-xl px-3 py-2 flex flex-col">
+                  <span class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Carga (kg)</span>
+                  <input
+                    type="text"
+                    inputmode="decimal"
+                    data-field="weight"
+                    data-uid="${ex.uid}"
+                    value="${escapeHtml(ex.weight)}"
+                    placeholder="0"
+                    class="w-full bg-transparent text-lg font-extrabold text-[#10b981] placeholder-slate-600 outline-none mt-0.5"
+                  />
+                </label>
+              </div>
+
+              <!-- Observações -->
+              <div>
+                <input
+                  type="text"
+                  data-field="notes"
+                  data-uid="${ex.uid}"
+                  value="${escapeHtml(ex.notes)}"
+                  placeholder="Observações (ex: banco 3, cadência controlada, drop-set)..."
+                  class="w-full bg-[#0f172a]/80 border border-slate-700/80 focus:border-slate-500 rounded-xl px-3 py-2.5 text-xs text-slate-200 placeholder-slate-500 outline-none transition"
+                />
+              </div>
+
+              <!-- Botão de Destaque YouTube (Animação 3D) + Editar Link -->
+              <div class="flex items-center gap-2 pt-0.5">
+                <a
+                  href="${escapeHtml(ytUrl)}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex-1 py-2.5 px-3.5 rounded-xl bg-[#ef4444] hover:bg-red-500 active:scale-[0.98] text-white font-bold text-xs shadow-md shadow-red-500/20 flex items-center justify-center gap-2 transition"
+                >
+                  <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                  </svg>
+                  <span>Como fazer (Animação 3D)</span>
+                </a>
+
+                <button
+                  type="button"
+                  data-action="edit-yt"
+                  data-uid="${ex.uid}"
+                  title="Editar link do YouTube"
+                  aria-label="Editar link do YouTube"
+                  class="py-2.5 px-3 rounded-xl bg-[#0f172a] hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-white active:scale-95 transition flex items-center gap-1.5 text-xs font-semibold"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+                  </svg>
+                  <span class="hidden sm:inline">Link</span>
+                </button>
+              </div>
+            </article>
+          `;
+        }).join('');
+      }
+
+      function renderApp() {
+        renderWeekdayBar();
+        renderDayHeader();
+        renderWorkoutList();
+      }
+
+      /* ---------------------------------------------------------------------
+       * 5. MODAL DO CATÁLOGO DE EXERCÍCIOS (COM PRÉVIA DO VÍDEO 3D)
+       * -------------------------------------------------------------------*/
+      function renderCatalogChips() {
+        const chipsEl = document.getElementById('catalog-chips');
+        chipsEl.innerHTML = MUSCLE_GROUPS.map(group => {
+          const active = group === catalogFilterGroup;
+          return `
+            <button
+              type="button"
+              data-group-chip="${escapeHtml(group)}"
+              class="shrink-0 px-3 py-1.5 rounded-xl text-xs font-bold border transition active:scale-95 ${
+                active
+                  ? 'bg-[#10b981] text-slate-950 border-emerald-400'
+                  : 'bg-[#1e293b] text-slate-300 border-slate-700 hover:text-white'
+              }"
+            >
+              ${escapeHtml(group)}
+            </button>
+          `;
+        }).join('');
+      }
+
+      function renderCatalogList() {
+        const listEl = document.getElementById('catalog-list');
+        const all = getAllCatalogExercises();
+        const term = normalizeText(catalogSearchTerm);
+
+        const filtered = all.filter(item => {
+          const matchesGroup = catalogFilterGroup === 'Todos' || item.group === catalogFilterGroup;
+          const matchesTerm = !term || normalizeText(item.name).includes(term) || normalizeText(item.group).includes(term);
+          return matchesGroup && matchesTerm;
+        });
+
+        const existingNames = new Set(
+          appState.days[selectedDay].exercises.map(e => normalizeText(e.name))
+        );
+
+        if (filtered.length === 0) {
+          listEl.innerHTML = `
+            <div class="text-center py-10 space-y-2">
+              <p class="text-sm font-semibold text-slate-200">Nenhum exercício encontrado</p>
+              <p class="text-xs text-slate-400">Use o botão acima para criar um exercício personalizado.</p>
+            </div>
+          `;
+          return;
+        }
+
+        listEl.innerHTML = filtered.map(item => {
+          const badgeClass = GROUP_COLORS[item.group] || 'bg-slate-700 text-slate-300 border-slate-600';
+          const alreadyAdded = existingNames.has(normalizeText(item.name));
+          const videoUrl = resolveYouTubeUrl(item);
+
+          return `
+            <div class="p-3.5 rounded-2xl bg-[#1e293b] border border-slate-700/80 flex flex-col gap-2.5">
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0 flex-1">
+                  <div class="text-sm font-bold text-white leading-snug break-words">${escapeHtml(item.name)}</div>
+                  <span class="inline-block mt-1 text-[10px] font-semibold px-2 py-0.5 rounded-md border ${badgeClass}">
+                    ${escapeHtml(item.group)}
+                  </span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <!-- Botão direto para assistir a animação 3D antes de adicionar -->
+                <a
+                  href="${escapeHtml(videoUrl)}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="px-3 py-2 rounded-xl bg-[#ef4444]/15 hover:bg-[#ef4444]/25 border border-[#ef4444]/35 text-red-400 font-bold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition"
+                >
+                  <svg class="w-3.5 h-3.5 text-[#ef4444] shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                  </svg>
+                  <span>Ver vídeo 3D</span>
+                </a>
+
+                <!-- Botão rápido para adicionar ao treino do dia -->
+                <button
+                  type="button"
+                  data-add-catalog-id="${item.id}"
+                  class="flex-1 py-2 px-3 rounded-xl text-xs font-extrabold active:scale-95 transition ${
+                    alreadyAdded
+                      ? 'bg-[#10b981]/20 text-[#10b981] border border-[#10b981]/40'
+                      : 'bg-[#10b981] hover:bg-emerald-400 text-slate-950'
+                  }"
+                >
+                  ${alreadyAdded ? 'No treino ✓ (Adicionar +1)' : '+ Adicionar ao dia'}
+                </button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function addExerciseToCurrentDay(catalogItem) {
+        const newEntry = {
+          uid: generateUid(),
+          exerciseId: catalogItem.id,
+          name: catalogItem.name,
+          group: catalogItem.group,
+          sets: '4',
+          reps: '12',
+          weight: '',
+          notes: '',
+          videoUrl: catalogItem.videoUrl || '',
+          customUrl: catalogItem.customUrl || '',
+          completed: false,
+        };
+
+        appState.days[selectedDay].exercises.push(newEntry);
+        saveState();
+        renderApp();
+        renderCatalogList();
+        showToast(`${catalogItem.name} adicionado!`);
+      }
+
+      /* ---------------------------------------------------------------------
+       * 6. COPIAR TREINO ENTRE DIAS DA SEMANA
+       * -------------------------------------------------------------------*/
+      function renderCopyModal() {
+        const sourceMeta = WEEKDAYS.find(d => d.key === selectedDay);
+        document.getElementById('copy-source-day-label').textContent = sourceMeta.full;
+
+        const targetDays = WEEKDAYS.filter(d => d.key !== selectedDay);
+        if (!selectedCopyTargetDay || selectedCopyTargetDay === selectedDay) {
+          selectedCopyTargetDay = targetDays[0].key;
+        }
+
+        const container = document.getElementById('copy-target-days');
+        container.innerHTML = targetDays.map(day => {
+          const isSelected = day.key === selectedCopyTargetDay;
+          const count = appState.days[day.key].exercises.length;
+          return `
+            <button
+              type="button"
+              data-copy-target="${day.key}"
+              class="p-2.5 rounded-xl border text-center active:scale-95 transition ${
+                isSelected
+                  ? 'bg-[#10b981] text-slate-950 border-emerald-400 font-extrabold'
+                  : 'bg-[#0f172a] text-slate-200 border-slate-700 hover:border-slate-500 font-semibold'
+              }"
+            >
+              <div class="text-xs">${day.short}</div>
+              <div class="text-[10px] mt-0.5 ${isSelected ? 'text-slate-900' : 'text-slate-400'}">
+                ${count} exerc.
+              </div>
+            </button>
+          `;
+        }).join('');
+      }
+
+      function executeCopyWorkout() {
+        if (!selectedCopyTargetDay || selectedCopyTargetDay === selectedDay) return;
+
+        const modeInput = document.querySelector('input[name="copy-mode"]:checked');
+        const mode = modeInput ? modeInput.value : 'replace';
+
+        const sourceDay = appState.days[selectedDay];
+        const targetDay = appState.days[selectedCopyTargetDay];
+
+        const clonedExercises = sourceDay.exercises.map(ex => ({
+          ...ex,
+          uid: generateUid(),
+          completed: false,
+        }));
+
+        if (mode === 'replace') {
+          targetDay.title = sourceDay.title;
+          targetDay.exercises = clonedExercises;
+        } else {
+          if (!targetDay.title && sourceDay.title) {
+            targetDay.title = sourceDay.title;
+          }
+          targetDay.exercises = [...targetDay.exercises, ...clonedExercises];
+        }
+
+        saveState();
+        renderApp();
+        closeModal('modal-copy');
+
+        const targetMeta = WEEKDAYS.find(d => d.key === selectedCopyTargetDay);
+        showToast(`Treino copiado para ${targetMeta.full}!`);
+      }
+
+      /* ---------------------------------------------------------------------
+       * 7. CRONÔMETRO DE DESCANSO (WEB AUDIO API + VIBRAÇÃO)
+       * -------------------------------------------------------------------*/
+      let timerDuration = 60;
+      let timerRemaining = 60;
+      let timerInterval = null;
+      let timerRunning = false;
+
+      function formatTime(totalSeconds) {
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        return String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+      }
+
+      function playFinishBeep() {
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return;
+          const ctx = new AudioCtx();
+          const now = ctx.currentTime;
+
+          [0, 0.22, 0.44].forEach((offset, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(idx === 2 ? 1046.5 : 880, now + offset);
+            gain.gain.setValueAtTime(0.001, now + offset);
+            gain.gain.exponentialRampToValueAtTime(0.24, now + offset + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.18);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + offset);
+            osc.stop(now + offset + 0.2);
+          });
+        } catch (err) {
+          console.warn('Web Audio não disponível:', err);
+        }
+
+        if (navigator.vibrate) {
+          navigator.vibrate([220, 100, 220, 100, 320]);
+        }
+      }
+
+      function updateTimerUI() {
+        const displayEl = document.getElementById('timer-display');
+        const statusEl = document.getElementById('timer-status');
+        const toggleBtn = document.getElementById('btn-timer-toggle');
+        const headerLabel = document.getElementById('header-timer-label');
+
+        const formatted = formatTime(timerRemaining);
+        displayEl.textContent = formatted;
+
+        if (timerRunning) {
+          statusEl.textContent = 'Descansando...';
+          toggleBtn.textContent = 'Pausar';
+          toggleBtn.classList.remove('bg-[#10b981]', 'hover:bg-emerald-400');
+          toggleBtn.classList.add('bg-amber-400', 'hover:bg-amber-300');
+          headerLabel.textContent = formatted;
+          headerLabel.classList.add('text-[#10b981]');
+        } else {
+          statusEl.textContent = timerRemaining === 0 ? 'Descanso concluído!' : 'Pronto para iniciar';
+          toggleBtn.textContent = timerRemaining === 0 ? 'Reiniciar' : 'Iniciar';
+          toggleBtn.classList.remove('bg-amber-400', 'hover:bg-amber-300');
+          toggleBtn.classList.add('bg-[#10b981]', 'hover:bg-emerald-400');
+          headerLabel.textContent = 'Descanso';
+          headerLabel.classList.remove('text-[#10b981]');
+        }
+      }
+
+      function startTimer() {
+        if (timerRemaining <= 0) {
+          timerRemaining = timerDuration;
+        }
+        timerRunning = true;
+        updateTimerUI();
+
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+          timerRemaining -= 1;
+          if (timerRemaining <= 0) {
+            timerRemaining = 0;
+            timerRunning = false;
+            clearInterval(timerInterval);
+            updateTimerUI();
+            playFinishBeep();
+            showToast('Tempo de descanso finalizado!');
+          } else {
+            updateTimerUI();
+          }
+        }, 1000);
+      }
+
+      function pauseTimer() {
+        timerRunning = false;
+        clearInterval(timerInterval);
+        updateTimerUI();
+      }
+
+      function resetTimer(newDuration) {
+        pauseTimer();
+        if (typeof newDuration === 'number' && newDuration > 0) {
+          timerDuration = newDuration;
+        }
+        timerRemaining = timerDuration;
+        updateTimerUI();
+      }
+
+      /* ---------------------------------------------------------------------
+       * 8. CONTROLE DE MODAIS
+       * -------------------------------------------------------------------*/
+      function openModal(id) {
+        const el = document.getElementById(id);
+        if (el) {
+          el.classList.remove('hidden');
+          document.body.classList.add('overflow-hidden');
+        }
+      }
+
+      function closeModal(id) {
+        const el = document.getElementById(id);
+        if (el) {
+          el.classList.add('hidden');
+          document.body.classList.remove('overflow-hidden');
+        }
+      }
+
+      /* ---------------------------------------------------------------------
+       * 9. EVENTOS E INTERAÇÕES
+       * -------------------------------------------------------------------*/
+      function setupEvents() {
+        // Navegação entre dias da semana
+        document.getElementById('weekday-bar').addEventListener('click', e => {
+          const btn = e.target.closest('button[data-day]');
+          if (!btn) return;
+          selectedDay = btn.dataset.day;
+          renderApp();
+        });
+
+        // Título do dia
+        document.getElementById('day-focus-input').addEventListener('input', e => {
+          appState.days[selectedDay].title = e.target.value;
+          saveState();
+        });
+
+        // Reiniciar check-ins
+        document.getElementById('btn-reset-checkins').addEventListener('click', () => {
+          const list = appState.days[selectedDay].exercises;
+          if (!list.some(ex => ex.completed)) return;
+          list.forEach(ex => { ex.completed = false; });
+          saveState();
+          renderApp();
+          showToast('Check-ins do dia reiniciados!');
+        });
+
+        // Finalizar treino e abrir histórico
+        document.getElementById('btn-finish-workout').addEventListener('click', finishCurrentWorkout);
+        document.getElementById('btn-open-history').addEventListener('click', () => {
+          renderHistory();
+          openModal('modal-history');
+        });
+        document.getElementById('history-list').addEventListener('click', e => {
+          const deleteButton = e.target.closest('button[data-delete-history]');
+          if (!deleteButton) return;
+          deleteHistoryEntry(Number(deleteButton.dataset.deleteHistory));
+        });
+        document.getElementById('btn-delete-all-history').addEventListener('click', deleteAllHistory);
+
+        // Copiar treino
+        document.getElementById('btn-open-copy').addEventListener('click', () => {
+          if (appState.days[selectedDay].exercises.length === 0) return;
+          renderCopyModal();
+          openModal('modal-copy');
+        });
+
+        document.getElementById('copy-target-days').addEventListener('click', e => {
+          const btn = e.target.closest('button[data-copy-target]');
+          if (!btn) return;
+          selectedCopyTargetDay = btn.dataset.copyTarget;
+          renderCopyModal();
+        });
+
+        document.getElementById('btn-confirm-copy').addEventListener('click', executeCopyWorkout);
+
+        // Interações nos cards de exercícios
+        const workoutListEl = document.getElementById('workout-list');
+
+        workoutListEl.addEventListener('click', e => {
+          const btn = e.target.closest('button[data-action]');
+          if (!btn) return;
+
+          const action = btn.dataset.action;
+          const uid = btn.dataset.uid;
+          const exercises = appState.days[selectedDay].exercises;
+          const idx = exercises.findIndex(ex => ex.uid === uid);
+          if (idx === -1) return;
+
+          if (action === 'toggle-complete') {
+            exercises[idx].completed = !exercises[idx].completed;
+            saveState();
+            renderApp();
+          } else if (action === 'move-up' && idx > 0) {
+            [exercises[idx - 1], exercises[idx]] = [exercises[idx], exercises[idx - 1]];
+            saveState();
+            renderWorkoutList();
+          } else if (action === 'move-down' && idx < exercises.length - 1) {
+            [exercises[idx + 1], exercises[idx]] = [exercises[idx], exercises[idx + 1]];
+            saveState();
+            renderWorkoutList();
+          } else if (action === 'remove') {
+            const removed = exercises.splice(idx, 1)[0];
+            saveState();
+            renderApp();
+            showToast(`${removed.name} removido.`);
+          } else if (action === 'edit-yt') {
+            const ex = exercises[idx];
+            document.getElementById('yt-modal-uid').value = ex.uid;
+            document.getElementById('yt-modal-exercise-name').textContent = ex.name;
+            document.getElementById('yt-modal-url-input').value = ex.customUrl || ex.videoUrl || '';
+            openModal('modal-youtube-link');
+          }
+        });
+
+        // Edição inline de Séries, Reps, Carga e Observações
+        workoutListEl.addEventListener('input', e => {
+          const input = e.target.closest('input[data-field]');
+          if (!input) return;
+
+          const field = input.dataset.field;
+          const uid = input.dataset.uid;
+          const ex = appState.days[selectedDay].exercises.find(item => item.uid === uid);
+          if (!ex) return;
+
+          ex[field] = input.value;
+          saveState();
+        });
+
+        // Modal de edição de link do YouTube
+        document.getElementById('form-youtube-link').addEventListener('submit', e => {
+          e.preventDefault();
+          const uid = document.getElementById('yt-modal-uid').value;
+          const url = document.getElementById('yt-modal-url-input').value.trim();
+          const ex = appState.days[selectedDay].exercises.find(item => item.uid === uid);
+          if (ex) {
+            const defaultUrl = ex.videoUrl || getCatalogVideoUrl(ex.exerciseId);
+            ex.customUrl = (url && url !== defaultUrl) ? url : '';
+            saveState();
+            renderWorkoutList();
+            showToast(ex.customUrl ? 'Link personalizado salvo!' : 'Vídeo 3D padrão mantido.');
+          }
+          closeModal('modal-youtube-link');
+        });
+
+        document.getElementById('btn-restore-yt-link').addEventListener('click', () => {
+          const uid = document.getElementById('yt-modal-uid').value;
+          const ex = appState.days[selectedDay].exercises.find(item => item.uid === uid);
+          if (ex) {
+            ex.customUrl = '';
+            saveState();
+            renderWorkoutList();
+            showToast('Link padrão de animação 3D restaurado.');
+          }
+          closeModal('modal-youtube-link');
+        });
+
+        // Abrir catálogo
+        document.getElementById('btn-open-catalog').addEventListener('click', () => {
+          catalogSearchTerm = '';
+          document.getElementById('catalog-search').value = '';
+          renderCatalogChips();
+          renderCatalogList();
+          openModal('modal-catalog');
+        });
+
+        // Busca instantânea no catálogo
+        document.getElementById('catalog-search').addEventListener('input', e => {
+          catalogSearchTerm = e.target.value;
+          renderCatalogList();
+        });
+
+        // Filtro por grupo muscular
+        document.getElementById('catalog-chips').addEventListener('click', e => {
+          const chip = e.target.closest('button[data-group-chip]');
+          if (!chip) return;
+          catalogFilterGroup = chip.dataset.groupChip;
+          renderCatalogChips();
+          renderCatalogList();
+        });
+
+        // Adicionar exercício a partir do catálogo
+        document.getElementById('catalog-list').addEventListener('click', e => {
+          const btn = e.target.closest('button[data-add-catalog-id]');
+          if (!btn) return;
+          const id = btn.dataset.addCatalogId;
+          const found = getAllCatalogExercises().find(item => item.id === id);
+          if (found) {
+            addExerciseToCurrentDay(found);
+          }
+        });
+
+        // Formulário de exercício personalizado
+        const customForm = document.getElementById('form-custom-exercise');
+        document.getElementById('btn-toggle-custom-form').addEventListener('click', () => {
+          customForm.classList.toggle('hidden');
+          if (!customForm.classList.contains('hidden')) {
+            document.getElementById('custom-ex-name').focus();
+          }
+        });
+
+        document.getElementById('btn-cancel-custom-form').addEventListener('click', () => {
+          customForm.reset();
+          customForm.classList.add('hidden');
+        });
+
+        customForm.addEventListener('submit', e => {
+          e.preventDefault();
+          const name = document.getElementById('custom-ex-name').value.trim();
+          const group = document.getElementById('custom-ex-group').value;
+          const customUrl = document.getElementById('custom-ex-url').value.trim();
+          if (!name || !customUrl) {
+            showToast('Informe o nome e o link do vídeo no YouTube.');
+            return;
+          }
+
+          const newCustom = {
+            id: 'custom_' + Date.now().toString(36),
+            name,
+            group,
+            videoUrl: customUrl,
+            customUrl,
+          };
+
+          appState.customExercises.unshift(newCustom);
+          addExerciseToCurrentDay(newCustom);
+          customForm.reset();
+          customForm.classList.add('hidden');
+        });
+
+        // Cronômetro de descanso
+        document.getElementById('btn-open-timer').addEventListener('click', () => {
+          updateTimerUI();
+          openModal('modal-timer');
+        });
+
+        document.querySelectorAll('[data-timer-preset]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const secs = parseInt(btn.dataset.timerPreset, 10);
+            resetTimer(secs);
+            startTimer();
+          });
+        });
+
+        document.getElementById('form-custom-timer').addEventListener('submit', e => {
+          e.preventDefault();
+          const input = document.getElementById('input-custom-seconds');
+          const secs = parseInt(input.value, 10);
+          if (!secs || secs < 5) {
+            showToast('Informe pelo menos 5 segundos.');
+            return;
+          }
+          resetTimer(secs);
+          input.value = '';
+          startTimer();
+        });
+
+        document.getElementById('btn-timer-toggle').addEventListener('click', () => {
+          if (timerRunning) {
+            pauseTimer();
+          } else {
+            startTimer();
+          }
+        });
+
+        document.getElementById('btn-timer-reset').addEventListener('click', () => {
+          resetTimer();
+        });
+
+        // Backup JSON
+        document.getElementById('btn-open-backup').addEventListener('click', () => {
+          openModal('modal-backup');
+        });
+
+        document.getElementById('btn-export-json').addEventListener('click', () => {
+          try {
+            const jsonStr = JSON.stringify(appState, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const dateStr = new Date().toISOString().slice(0, 10);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `meu-treino-backup-${dateStr}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast('Backup exportado com sucesso!');
+            closeModal('modal-backup');
+          } catch (err) {
+            console.error('Erro ao exportar JSON:', err);
+            showToast('Erro ao gerar arquivo de backup.');
+          }
+        });
+
+        document.getElementById('input-import-json').addEventListener('change', e => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = () => {
+            try {
+              const imported = JSON.parse(String(reader.result));
+              if (!imported || typeof imported !== 'object' || !imported.days) {
+                throw new Error('Formato inválido');
+              }
+
+              WEEKDAYS.forEach(d => {
+                if (!imported.days[d.key] || !Array.isArray(imported.days[d.key].exercises)) {
+                  imported.days[d.key] = { title: '', exercises: [] };
+                }
+              });
+
+              appState = {
+                version: 3,
+                days: imported.days,
+                customExercises: Array.isArray(imported.customExercises) ? imported.customExercises : [],
+                history: Array.isArray(imported.history) ? imported.history : [],
+              };
+
+              saveState();
+              renderApp();
+              closeModal('modal-backup');
+              showToast('Backup restaurado com sucesso!');
+            } catch (err) {
+              console.error('Erro ao importar JSON:', err);
+              showToast('Arquivo de backup inválido.');
+            } finally {
+              e.target.value = '';
+            }
+          };
+          reader.readAsText(file);
+        });
+
+        // Fechar modais ao clicar no fundo ou botão X
+        document.querySelectorAll('[data-close-modal]').forEach(el => {
+          el.addEventListener('click', () => {
+            closeModal(el.dataset.closeModal);
+          });
+        });
+
+        // Fechar modais com tecla Escape
+        document.addEventListener('keydown', e => {
+          if (e.key === 'Escape') {
+            ['modal-catalog', 'modal-youtube-link', 'modal-copy', 'modal-timer', 'modal-backup', 'modal-history'].forEach(closeModal);
+          }
+        });
+      }
+
+      /* ---------------------------------------------------------------------
+       * 10. INICIALIZAÇÃO
+       * -------------------------------------------------------------------*/
+      setupEvents();
+      renderApp();
+      updateTimerUI();
+    })();
+  </script>
+    </body>
+  </html>
