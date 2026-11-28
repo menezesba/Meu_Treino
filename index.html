@@ -78,7 +78,7 @@
         </div>
         <div>
           <h1 class="text-base font-extrabold tracking-tight text-white leading-none">Meu Treino</h1>
-          <p class="text-[11px] text-slate-400 font-medium mt-0.5">84 exercícios • Animações 3D</p>
+          <p class="text-[11px] text-slate-400 font-medium mt-0.5">84 exercícios • Shape em V</p>
         </div>
       </div>
 
@@ -186,8 +186,12 @@
       </div>
     </section>
 
-    <!-- Acesso ao histórico de treinos -->
-    <div class="flex justify-end -mt-1">
+    <!-- Acesso rápido: Protocolo Shape em V e Histórico -->
+    <div class="flex items-center justify-between gap-2 -mt-1">
+      <button id="btn-load-shape-v" type="button" class="px-3 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 text-xs font-extrabold flex items-center gap-1.5 active:scale-95 transition">
+        <span aria-hidden="true">⚡</span> Carregar Shape em V
+      </button>
+
       <button id="btn-open-history" type="button" class="px-3 py-2 rounded-xl bg-[#1e293b] border border-slate-700 text-slate-200 text-xs font-bold flex items-center gap-2 active:scale-95 transition">
         <span aria-hidden="true">📅</span> Histórico de treinos
       </button>
@@ -650,7 +654,7 @@
       'use strict';
 
       /* ---------------------------------------------------------------------
-       * 1. CONSTANTES E CATÁLOGO EXATO DOS 81 EXERCÍCIOS COM VÍDEOS 3D ÚNICOS
+       * 1. CONSTANTES E CATÁLOGO EXATO DOS 84 EXERCÍCIOS COM VÍDEOS 3D ÚNICOS
        * -------------------------------------------------------------------*/
       const STORAGE_KEY = 'meu_treino_app_v2';
 
@@ -704,7 +708,7 @@
         { id: 'ex-12', name: 'Crossover Polia Alta', group: 'Peito', videoUrl: 'https://www.youtube.com/watch?v=55nyV_aosNk' },
         { id: 'ex-13', name: 'Crossover Polia Baixa', group: 'Peito', videoUrl: 'https://www.youtube.com/watch?v=Od9914tc8sg' },
 
-        // Grupo "Costas" (14 a 23)
+        // Grupo "Costas" (14 a 23 + 82 a 84)
         { id: 'ex-14', name: 'Puxada Frontal Aberta', group: 'Costas', videoUrl: 'https://www.youtube.com/watch?v=_2MfZAj98tk' },
         { id: 'ex-15', name: 'Puxada Fechada com Triângulo', group: 'Costas', videoUrl: 'https://www.youtube.com/watch?v=ySLFHxmJ_Sc' },
         { id: 'ex-16', name: 'Remada Baixa Fechada (Triângulo)', group: 'Costas', videoUrl: 'https://www.youtube.com/watch?v=7lc8Ow4vIwA' },
@@ -791,26 +795,106 @@
       ];
 
       /* ---------------------------------------------------------------------
-       * 2. ESTADO DA APLICAÇÃO E PERSISTÊNCIA (LOCALSTORAGE)
+       * 2. PROTOCOLO SHAPE EM V (DIVISÃO DE 5 DIAS: SEGUNDA A SEXTA)
        * -------------------------------------------------------------------*/
+      const SHAPE_V_PROTOCOL = {
+        seg: {
+          title: 'Shape em V — Peito (Ênfase Superior)',
+          items: [
+            { exerciseId: 'ex-07', sets: '4', reps: '8-12', notes: 'Foco na porção superior/clavicular para ampliar o tronco' },
+            { exerciseId: 'ex-04', sets: '4', reps: '8-12', notes: 'Cadência controlada na descida' },
+            { exerciseId: 'ex-11', sets: '3', reps: '12-15', notes: 'Alongar bem o peitoral na abertura' },
+            { exerciseId: 'ex-13', sets: '3', reps: '12-15', notes: 'Trazer de baixo para cima fechando no topo' },
+            { exerciseId: 'ex-01', sets: '3', reps: '12-15', notes: 'Pico de contração de 1s no centro' }
+          ]
+        },
+        ter: {
+          title: 'Shape em V — Costas / Dorsais (Largura)',
+          items: [
+            { exerciseId: 'ex-14', sets: '4', reps: '8-12', notes: 'Exercício-chave: abrir bem as dorsais no topo' },
+            { exerciseId: 'ex-15', sets: '4', reps: '10-12', notes: 'Puxar até o peito sem balançar o tronco' },
+            { exerciseId: 'ex-82', sets: '4', reps: '8-12', notes: 'Cotovelos rentes ao corpo para focar no latíssimo' },
+            { exerciseId: 'ex-22', sets: '3', reps: '12-15', notes: 'Isolamento máximo das asas (dorsais)' },
+            { exerciseId: 'ex-84', sets: '3', reps: '10-12', notes: 'Fortalecimento lombar e postura' }
+          ]
+        },
+        qua: {
+          title: 'Shape em V — Pernas (Base Proporcional)',
+          items: [
+            { exerciseId: 'ex-24', sets: '4', reps: '8-12', notes: 'Amplitude completa com controle' },
+            { exerciseId: 'ex-30', sets: '4', reps: '10-12', notes: 'Sem travar os joelhos no topo' },
+            { exerciseId: 'ex-34', sets: '4', reps: '12-15', notes: 'Segurar 1s na extensão máxima' },
+            { exerciseId: 'ex-36', sets: '4', reps: '10-12', notes: 'Quadril firme no banco' },
+            { exerciseId: 'ex-79', sets: '4', reps: '15-20', notes: 'Alongar bem o calcanhar embaixo' }
+          ]
+        },
+        qui: {
+          title: 'Shape em V — Ombros (Largura Lateral)',
+          items: [
+            { exerciseId: 'ex-45', sets: '4', reps: '8-12', notes: 'Base de força para deltoides' },
+            { exerciseId: 'ex-47', sets: '4', reps: '12-15', notes: 'Exercício-chave para alargar a linha superior' },
+            { exerciseId: 'ex-48', sets: '3', reps: '12-15', notes: 'Sem roubar com impulso do tronco' },
+            { exerciseId: 'ex-51', sets: '3', reps: '10-12', notes: 'Tensão constante na polia' },
+            { exerciseId: 'ex-52', sets: '4', reps: '12-15', notes: 'Deltoide posterior para aspecto 3D' }
+          ]
+        },
+        sex: {
+          title: 'Shape em V — Braços + Core (Cintura Fina)',
+          items: [
+            { exerciseId: 'ex-66', sets: '4', reps: '10-12', notes: 'Abrir a corda no final do movimento' },
+            { exerciseId: 'ex-69', sets: '4', reps: '10-12', notes: 'Alongar bem a cabeça longa do tríceps' },
+            { exerciseId: 'ex-55', sets: '4', reps: '8-12', notes: 'Cotovelos fixos ao lado do corpo' },
+            { exerciseId: 'ex-59', sets: '4', reps: '10-12', notes: 'Foco em braquial e antebraço' },
+            { exerciseId: 'ex-74', sets: '3', reps: '45s', notes: 'Ativar transverso para cintura fina' },
+            { exerciseId: 'ex-76', sets: '3', reps: '15', notes: 'Evitar cargas pesadas nos oblíquos' }
+          ]
+        },
+        sab: {
+          title: 'Descanso Ativo / Cardio Opcional',
+          items: []
+        },
+        dom: {
+          title: 'Descanso Total',
+          items: []
+        }
+      };
 
-      // Cada instalação começa com a semana vazia.
-      // A biblioteca BASE_CATALOG permanece fixa no código e disponível
-      // para todos. A programação e os exercícios personalizados ficam
-      // no localStorage de cada navegador, sem compartilhar dados.
-      function buildEmptyWeekPlan() {
+      function buildShapeVWeekPlan() {
         const days = {};
         WEEKDAYS.forEach(day => {
-          days[day.key] = { title: '', exercises: [] };
+          const proto = SHAPE_V_PROTOCOL[day.key] || { title: '', items: [] };
+          const exercises = proto.items.map(item => {
+            const cat = BASE_CATALOG.find(c => c.id === item.exerciseId);
+            return {
+              uid: generateUid(),
+              exerciseId: cat ? cat.id : item.exerciseId,
+              name: cat ? cat.name : 'Exercício',
+              group: cat ? cat.group : 'Geral',
+              sets: item.sets || '4',
+              reps: item.reps || '12',
+              weight: '',
+              notes: item.notes || '',
+              videoUrl: cat ? cat.videoUrl : '',
+              customUrl: '',
+              completed: false
+            };
+          });
+          days[day.key] = {
+            title: proto.title,
+            exercises
+          };
         });
         return days;
       }
 
+      /* ---------------------------------------------------------------------
+       * 3. ESTADO DA APLICAÇÃO E PERSISTÊNCIA (LOCALSTORAGE)
+       * -------------------------------------------------------------------*/
       function createDefaultState() {
         return {
           version: 4,
-          planPresetVersion: 2,
-          days: buildEmptyWeekPlan(),
+          planPresetVersion: 3,
+          days: buildShapeVWeekPlan(),
           customExercises: [],
           history: [],
         };
@@ -827,20 +911,27 @@
             return fallback;
           }
 
+          let hasAnyExercise = false;
           WEEKDAYS.forEach(d => {
             if (!parsed.days[d.key] || !Array.isArray(parsed.days[d.key].exercises)) {
               parsed.days[d.key] = { title: '', exercises: [] };
             }
+            if (parsed.days[d.key].exercises.length > 0) {
+              hasAnyExercise = true;
+            }
           });
+
+          // Se a semana estiver completamente vazia, preenche automaticamente com o Shape em V
+          if (!hasAnyExercise) {
+            parsed.days = buildShapeVWeekPlan();
+          }
 
           if (!Array.isArray(parsed.customExercises)) {
             parsed.customExercises = [];
           }
           if (!Array.isArray(parsed.history)) parsed.history = [];
 
-          // Não instala a ficha pessoal do proprietário para novos usuários.
-          // Dados locais já existentes são preservados sem alteração.
-          parsed.planPresetVersion = 2;
+          parsed.planPresetVersion = 3;
           parsed.version = 4;
           return parsed;
         } catch (err) {
@@ -856,6 +947,19 @@
           console.error('Erro ao salvar dados no localStorage:', err);
           showToast('Não foi possível salvar localmente.');
         }
+      }
+
+      function applyShapeVProtocol() {
+        const hasExisting = WEEKDAYS.some(d => appState.days[d.key].exercises.length > 0);
+        if (hasExisting) {
+          const ok = confirm('Isso vai substituir a programação atual de Segunda a Sexta pelo Protocolo Shape em V (5 dias), mantendo seu histórico salvo. Deseja continuar?');
+          if (!ok) return;
+        }
+        appState.days = buildShapeVWeekPlan();
+        selectedDay = 'seg';
+        saveState();
+        renderApp();
+        showToast('Protocolo Shape em V (5 dias) carregado!');
       }
 
       function formatLocalDate(dateValue) {
@@ -874,8 +978,6 @@
           list.innerHTML = '<div class="text-center py-12 text-sm text-slate-400">Você ainda não finalizou nenhum treino. Quando concluir o primeiro, ele aparecerá aqui com a data, os exercícios e as cargas.</div>';
           return;
         }
-        // Exibe do treino mais antigo para o mais recente, em ordem cronológica.
-        // O índice original é preservado para que a lixeira exclua o registro correto.
         const orderedHistory = history
           .map((item, historyIndex) => ({ item, historyIndex }))
           .sort((a, b) => {
@@ -967,13 +1069,12 @@
       let selectedCopyTargetDay = null;
 
       /* ---------------------------------------------------------------------
-       * 3. UTILITÁRIOS
+       * 4. UTILITÁRIOS
        * -------------------------------------------------------------------*/
       function generateUid() {
         return 'ex_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 7);
       }
 
-      // Remove acentos para busca instantânea amigável em português
       function normalizeText(str) {
         return String(str || '')
           .normalize('NFD')
@@ -996,7 +1097,6 @@
         return found ? found.videoUrl : '';
       }
 
-      // Prioridade do link: 1) link personalizado do usuário -> 2) link 3D padrão do catálogo -> 3) busca YouTube com "animação 3D"
       function resolveYouTubeUrl(exercise) {
         if (exercise.customUrl && exercise.customUrl.trim()) {
           return exercise.customUrl.trim();
@@ -1031,7 +1131,7 @@
       }
 
       /* ---------------------------------------------------------------------
-       * 4. RENDERIZAÇÃO DA INTERFACE PRINCIPAL
+       * 5. RENDERIZAÇÃO DA INTERFACE PRINCIPAL
        * -------------------------------------------------------------------*/
       function renderWeekdayBar() {
         const container = document.getElementById('weekday-bar');
@@ -1084,7 +1184,6 @@
         document.getElementById('progress-percent').textContent = `${percent}%`;
         document.getElementById('progress-bar').style.width = `${percent}%`;
 
-        // Habilita/desabilita botões conforme estado do dia
         const resetBtn = document.getElementById('btn-reset-checkins');
         resetBtn.disabled = done === 0;
         resetBtn.classList.toggle('opacity-40', done === 0);
@@ -1101,12 +1200,14 @@
         const exercises = appState.days[selectedDay].exercises;
 
         if (exercises.length === 0) {
-          listEl.innerHTML = '';
+          listEl.innerHTML = `
+            <div class="rounded-2xl border border-slate-800 bg-[#1e293b]/50 p-6 text-center space-y-2">
+              <div class="text-sm font-bold text-slate-200">Nenhum exercício programado para este dia</div>
+              <div class="text-xs text-slate-400">Toque em <strong>+ Adicionar exercício</strong> abaixo ou carregue o <strong>Protocolo Shape em V</strong> acima.</div>
+            </div>`;
           return;
         }
 
-        // Exercícios concluídos continuam salvos no dia, mas saem da lista
-        // ativa para não atrapalhar durante o treino.
         const visibleExercises = exercises
           .map((ex, index) => ({ ex, index }))
           .filter(item => !item.ex.completed);
@@ -1302,7 +1403,7 @@
       }
 
       /* ---------------------------------------------------------------------
-       * 5. MODAL DO CATÁLOGO DE EXERCÍCIOS (COM PRÉVIA DO VÍDEO 3D)
+       * 6. MODAL DO CATÁLOGO DE EXERCÍCIOS (COM PRÉVIA DO VÍDEO 3D)
        * -------------------------------------------------------------------*/
       function renderCatalogChips() {
         const chipsEl = document.getElementById('catalog-chips');
@@ -1366,7 +1467,6 @@
               </div>
 
               <div class="flex items-center gap-2">
-                <!-- Botão direto para assistir a animação 3D antes de adicionar -->
                 <a
                   href="${escapeHtml(videoUrl)}"
                   target="_blank"
@@ -1379,7 +1479,6 @@
                   <span>Ver vídeo 3D</span>
                 </a>
 
-                <!-- Botão rápido para adicionar ao treino do dia -->
                 <button
                   type="button"
                   data-add-catalog-id="${item.id}"
@@ -1420,7 +1519,7 @@
       }
 
       /* ---------------------------------------------------------------------
-       * 6. COPIAR TREINO ENTRE DIAS DA SEMANA
+       * 7. COPIAR TREINO ENTRE DIAS DA SEMANA
        * -------------------------------------------------------------------*/
       function renderCopyModal() {
         const sourceMeta = WEEKDAYS.find(d => d.key === selectedDay);
@@ -1488,7 +1587,7 @@
       }
 
       /* ---------------------------------------------------------------------
-       * 7. CRONÔMETRO DE DESCANSO (WEB AUDIO API + VIBRAÇÃO)
+       * 8. CRONÔMETRO DE DESCANSO (WEB AUDIO API + VIBRAÇÃO)
        * -------------------------------------------------------------------*/
       let timerDuration = 60;
       let timerRemaining = 60;
@@ -1596,7 +1695,7 @@
       }
 
       /* ---------------------------------------------------------------------
-       * 8. CONTROLE DE MODAIS
+       * 9. CONTROLE DE MODAIS
        * -------------------------------------------------------------------*/
       function openModal(id) {
         const el = document.getElementById(id);
@@ -1615,7 +1714,7 @@
       }
 
       /* ---------------------------------------------------------------------
-       * 9. EVENTOS E INTERAÇÕES
+       * 10. EVENTOS E INTERAÇÕES
        * -------------------------------------------------------------------*/
       function setupEvents() {
         // Navegação entre dias da semana
@@ -1631,6 +1730,9 @@
           appState.days[selectedDay].title = e.target.value;
           saveState();
         });
+
+        // Botão carregar Protocolo Shape em V
+        document.getElementById('btn-load-shape-v').addEventListener('click', applyShapeVProtocol);
 
         // Reiniciar check-ins
         document.getElementById('btn-reset-checkins').addEventListener('click', () => {
@@ -1911,7 +2013,7 @@
               });
 
               appState = {
-                version: 3,
+                version: 4,
                 days: imported.days,
                 customExercises: Array.isArray(imported.customExercises) ? imported.customExercises : [],
                 history: Array.isArray(imported.history) ? imported.history : [],
@@ -1947,7 +2049,7 @@
       }
 
       /* ---------------------------------------------------------------------
-       * 10. INICIALIZAÇÃO
+       * 11. INICIALIZAÇÃO
        * -------------------------------------------------------------------*/
       setupEvents();
       renderApp();
